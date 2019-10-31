@@ -1,0 +1,32 @@
+{% extends 'base.html' %}
+
+{% block content %}
+
+<div class="row centered-form center-block">
+  <div class="container col-md-3 col-md-offset-1">
+
+  {% if form.errors %}
+    <p id="error" style="color: red">Your username and password didn't match. Please try again.</p>
+  {% endif %}
+  <form method="post">
+    {% csrf_token %}
+    <input type="hidden" name="next" value="/" />
+    {% for field in form %}
+      <p>
+        {{ field.label_tag }}<br>
+        {{ field }}<br>
+        {% for error in field.errors %}
+          <p style="color: red">{{ error }}</p>
+        {% endfor %}
+        {% if field.help_text %}
+          <p><small style="color: grey">{{ field.help_text }}</small></p>
+        {% endif %}
+      </p>
+    {% endfor %}
+    <button id='submit' type="submit" class="btn btn-primary">Log in</button>
+    <a href="{% url 'signup' %}">New to CrowdMentor? Sign up</a>
+  </form>
+<a href="/password_reset">Forgot Password</a>
+  </div>
+</div>
+{% endblock %}

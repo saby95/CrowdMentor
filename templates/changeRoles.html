@@ -1,0 +1,47 @@
+{% extends 'base.html' %}
+
+{%load extra_filters%}
+
+{% block content %}
+<h4>Welcome, admin!</h4>
+<div class="d-flex">
+          <form method="post">
+              {% csrf_token %}
+              <table class="table table table-hover">
+                <thead>
+                    <tr>
+                        <th scope="col">Username</th>
+                        <th scope="col">User Roles</th>
+                        <th scope="col">New Roles</th>
+                        <th scope="col">Salary</th>
+                        <th scope="col">Bonus</th>
+                        <th scope="col">Fine</th>
+                        <th scope="col">Audit Probability</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for key, value in user_dict.items %}
+                        <tr>
+                            <th>{{ value.1 }}</th>
+                            <th>{{ value.2 }}</th>
+                            <th>{{ form.visible_fields|get_at_index:value.3 }}</th>
+                            {% if value.0 %}
+                                <th>{{ form.visible_fields|get_at_index:value.5 }}</th>
+                                <th>{{ form.visible_fields|get_at_index:value.6 }}</th>
+                                <th>{{ form.visible_fields|get_at_index:value.7 }}</th>
+                                <th>{{ form.visible_fields|get_at_index:value.8 }}</th>
+                            {% else %}
+                                <th>&nbsp;</th>
+                                <th>&nbsp;</th>
+                                <th>&nbsp;</th>
+                                <th>&nbsp;</th>
+                            {% endif %}
+                        </tr>
+                    {% endfor %}
+                </tbody>
+              </table>
+              <button type="submit" id="id_change_role" class="btn btn-danger">Update</button>
+          </form>
+      </div>
+
+{% endblock %}

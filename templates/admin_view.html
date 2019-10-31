@@ -1,0 +1,95 @@
+{% extends 'base.html' %}
+
+
+
+{% block content %}
+
+<!--<div class="page-header" style="float:left">-->
+  <!--<h2>Welcome {{ user.get_full_name }}! <br> <small>Role: {{ profile }}</small></h2>-->
+    <!--<h3>Total Salary: ${{user.profile.total_salary}}</h3><br>-->
+<!--</div>-->
+
+{% if dict_profile.items %}
+<h5>List of all workers : </h5>
+{% endif %}
+
+<div class="accordion worker-accordation" id="accordionExample">
+    {% for key, value in dict_profile.items %}
+      <div class="card worker">
+        <div class="card-header" id="heading_worker{{forloop.counter}}">
+          <h5 class="mb-0">
+            <button class="btn btn-link collapsed" type="button" data-toggle="collapse" data-target="#collapse{{forloop.counter}}" aria-expanded="false" aria-controls="collapse{{forloop.counter}}">
+              {{ key }}
+            </button>
+          </h5>
+        </div>
+        <div id="collapse{{forloop.counter}}" class="collapse" aria-labelledby="heading{{forloop.counter}}" data-parent="#accordionExample">
+          <div class="card-body">
+            <h5>Profile</h5>
+            Username: {{ value.username }}<br>
+            First name : {{ value.fname }}<br>
+            Last name : {{ value.lname }}<br>
+            Role : {{value.role}}<br>
+            Email : {{ value.email }}<br>
+            Birthday : {{ value.bdate }}
+            <hr class="my-4">
+            <h5>Contract</h5>
+            Salary : {{ value.salary }}<br>
+            Bonus : {{ value.bonus }}<br>
+            Fine : {{ value.fine }}<br>
+            Total salary : {{value.total_salary}}
+            {% if user.profile.role == 'admin'%}
+              <a href="{{value.id}}/reset_salary" onclick="return confirm('Are you sure you want to reset the salary?')">Reset</a>
+            {% endif %}
+            <hr class="my-4">
+            <h5>Statistics</h5>
+            Number of tasks claimed :  {{ value.claimed }}<br>
+            Number of tasks finished : {{ value.finished }}<br>
+            Total hours spent : {{ value.worked|floatformat:"0" }}<br>
+            Average hour spent/task : {{ value.avgworked|floatformat:"0" }}
+          </div>
+        </div>
+      </div>
+    {% endfor %}
+</div>
+
+{% if emp_profile.items%}
+<h5>List of other Employees : </h5>
+{% endif %}
+
+<div class="accordion employee-accordation" id="accordionExampleEmployee">
+    {% for key, value in emp_profile.items %}
+      <div class="card employee">
+        <div class="card-header" id="heading_employee{{forloop.counter}}">
+          <h5 class="mb-1">
+            <button class="btn btn-link collapsed employee" type="button" data-toggle="collapse" data-target="#collapse1{{forloop.counter}}" aria-expanded="false" aria-controls="collapse1{{forloop.counter}}">
+              {{ key }}
+            </button>
+          </h5>
+        </div>
+        <div id="collapse1{{forloop.counter}}" class="collapse1" aria-labelledby="heading{{forloop.counter}}" data-parent="#accordionExampleEmployee">
+          <div class="card-body">
+            <h5>Profile</h5>
+            Username: {{ value.username }}<br>
+            First name : {{ value.fname }}<br>
+            Last name : {{ value.lname }}<br>
+            Role : {{value.role}}<br>
+            Email : {{ value.email }}<br>
+            Birthday : {{ value.bdate }}
+            <hr class="my-4">
+            <h5>Contract</h5>
+            Salary : {{ value.salary }}<br>
+            Bonus : {{ value.bonus }}<br>
+            Fine : {{ value.fine }}<br>
+            Total salary : {{value.total_salary}}
+            {% if user.profile.role == 'admin'%}
+              <a href="{{value.id}}/reset_salary" onclick="return confirm('Are you sure you want to reset the salary?')">Reset</a>
+            {% endif %}
+          </div>
+        </div>
+      </div>
+    {% endfor %}
+</div>
+
+
+{% endblock %}

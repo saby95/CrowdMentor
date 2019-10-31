@@ -1,0 +1,35 @@
+{% extends 'base.html' %}
+
+{% block content %}
+<div class="row centered-form center-block">
+  <div class="container col-md-3 col-md-offset-1">
+
+  <div class="page-header">  <h3>Register</h3> </div>
+
+  <form method="post">
+    {% csrf_token %}
+    {% for field in form %}
+      <p>
+        {{ field.label_tag }}<br>
+        {{ field }}
+        {% if field.help_text %}
+          <small style="color: grey">{{ field.help_text }}</small>
+        {% endif %}
+        {% for error in field.errors %}
+          <p id="error" style="color: red">{{ error }}</p>
+        {% endfor %}
+      </p>
+    {% endfor %}
+    <div class="d-flex">
+      <div>
+         <button id="id_signup" type="submit" class="btn btn-primary">Sign up</button>
+      </div>
+      <div class="ml-auto">
+         <a class="btn btn-danger" href="/" role="button">Cancel</a>
+      </div>
+    </div>
+
+  </form>
+    </div>
+</div>
+{% endblock %}
