@@ -40,6 +40,7 @@ class Worker(models.Model):
     open_tasks = models.IntegerField(default=0)
     completed_tasks = models.IntegerField(default=0)
     claimed_tasks = models.IntegerField(default=0)
+    is_Mentor = models.BooleanField(default=False)
     worker_pool = models.CharField(max_length=1,choices=[('A','A'),('B','B')], default='A')
 
 
