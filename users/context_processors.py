@@ -19,7 +19,7 @@ def view(request):
 
         if profile == UserRoles.ADMIN.value:
             dict_functs['/change_roles'] = 'Update Worker'
-            dict_functs['/tasks/all_task_status'] = 'Mentor Status'
+            dict_functs['/mentor_status'] = 'Mentor Status'
             dict_functs['/help/'] = 'Help'
 
         if profile == UserRoles.NORMAL_WORKER.value or profile == UserRoles.VIRTUAL_WORKER.value:

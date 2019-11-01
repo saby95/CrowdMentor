@@ -1,10 +1,11 @@
+from __future__ import print_function
 from django.shortcuts import render,redirect
 from django.contrib.auth.decorators import login_required
 from django.contrib.auth.models import User
-from .models import Profile, UserRoles
+from .models import Profile, UserRoles, Mentor, Worker
 from django.http import HttpResponseRedirect
 from django.contrib import messages
-from .UserForms import ChangeRolesForm
+from .UserForms import ChangeRolesForm, ChangeMentorStatus
 
 def userDetails(user_id):
     dict_profile = {}
@@ -67,27 +68,76 @@ def change_roles(request):
 
     users = User.objects.all()
     if request.method == 'POST':
-        for user in users:
-            id = user.id
-            if 'Select' != request.POST.get('role_'+str(id)):
-                user.profile.role = request.POST.get('role_'+str(id))
-            user.worker.salary = request.POST.get('salary_' + str(id))
-            user.worker.bonus = request.POST.get('bonus_' + str(id))
-            user.worker.fine = request.POST.get('fine_' + str(id))
-            user.worker.audit_prob_user = request.POST.get('audit_prob_' + str(id))
-            #if request.POST.get('mantor_id_' + str(id)) is not 'None':
-            #    user.profile.mentor_id = request.POST.get('mentor_id_' + str(id))
+        posted_request = request.POST.dict()
+        #print(posted_request)
+        all_keys = list(posted_request.keys())
+        usrname = all_keys[len(all_keys)-1]
+        usr = User.objects.get(username=usrname)
+        usr.profile.role = posted_request['role']
+        usr.worker.salary = posted_request['salary']
+        usr.worker.bonus = posted_request['bonus']
+        usr.worker.fine = posted_request['fine']
+        usr.worker.audit_prob_user = posted_request['audit_prob']
+        usr.worker.save()
+        usr.profile.save()
 
-            user.save()
-        return redirect('/')
+        # for user in users:
+        #     id = user.id
+        #     if 'Select' != request.POST.get('role_'+str(id)):
+        #         user.profile.role = request.POST.get('role_'+str(id))
+        #     user.worker.salary = request.POST.get('salary_' + str(id))
+        #     user.worker.bonus = request.POST.get('bonus_' + str(id))
+        #     user.worker.fine = request.POST.get('fine_' + str(id))
+        #     user.worker.audit_prob_user = request.POST.get('audit_prob_' + str(id))
+        #     #if request.POST.get('mantor_id_' + str(id)) is not 'None':
+        #     #    user.profile.mentor_id = request.POST.get('mentor_id_' + str(id))
+        #
+        #     user.save()
     user_dict=dict()
-    user_dict_html = dict()
-    i=0
     for usr in users:
-        prf = Profile.objects.get(user_id=usr.id)
-        user_dict[usr.id] = [0, usr.username, usr.email, prf.role, usr.worker.salary, usr.worker.bonus, usr.worker.fine,
-                             usr.worker.audit_prob_user]
-        user_dict_html[usr.id] = [(prf.role==UserRoles.NORMAL_WORKER.value), usr.username, prf.role, i, i+1, i+2, i+3, i+4, i+5]
+        if (usr.profile.role == UserRoles.ADMIN.value):
+            continue
+        user_dict[usr.username] = ChangeRolesForm(value=usr.id)
+        # prf = Profile.objects.get(user_id=usr.id)
+        # user_dict[usr.id] = [0, usr.username, usr.email, prf.role, usr.worker.salary, usr.worker.bonus, usr.worker.fine,
+        #                      usr.worker.audit_prob_user]
+        # user_dict_html[usr.id] = [(prf.role==UserRoles.NORMAL_WORKER.value), usr.username, prf.role, i, i+1, i+2, i+3, i+4, i+5]
 
-    form = ChangeRolesForm(users=user_dict)
-    return render(request, 'changeRoles.html', {'form': form, 'user_dict':user_dict_html})
+    #form = ChangeRolesForm(users=user_dict)
+    return render(request, 'changeRoles.html', {'user_dict':user_dict})
+
+
+@login_required
+def mentor_status(request):
+    user = User.objects.get(username=request.user.username)
+    profile = user.profile.role
+    if profile != 'admin':
+        messages.warning(request, 'Permission Denied!! You do not have permission to access this page')
+        return HttpResponseRedirect('/')
+
+    profiles = Profile.objects.all()
+    mentors = Mentor.objects.all()
+
+    mentors_list = []
+
+    for mentor in mentors:
+        mentors_list.append(mentor.user.username)
+
+    if request.method == 'POST':
+        posted_request = request.POST.dict()
+        all_keys = list(posted_request.keys())
+        usrname = all_keys[len(all_keys)-1]
+        usr_id = User.objects.get(username=usrname).id
+        worker = Worker.objects.get(user_id=usr_id)
+        value = request.POST.get("mentor_status")
+        worker.is_Mentor = value
+        worker.save()
+
+    worker_context = {}
+    for profile in profiles:
+        if profile.role == UserRoles.NORMAL_WORKER.value:
+            worker_context[profile.user.username] = ChangeMentorStatus(value=profile.user.worker.is_Mentor)
+
+    return render(request, 'mentorStatus.html', {'user_dict': worker_context})
+
+

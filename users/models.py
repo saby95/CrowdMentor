@@ -2,9 +2,15 @@ from django.db import models
 from decimal import Decimal
 from django.contrib.auth.models import User
 from enum import Enum
+import json
 
 from django.dispatch import receiver
 from django.db.models.signals import post_save
+
+
+
+TRUE_OR_FALSE = [(True,'Yes'), (False,'No')]
+
 
 
 class UserRoles(Enum):
@@ -40,8 +46,15 @@ class Worker(models.Model):
     open_tasks = models.IntegerField(default=0)
     completed_tasks = models.IntegerField(default=0)
     claimed_tasks = models.IntegerField(default=0)
-    is_Mentor = models.BooleanField(default=False)
+    is_Mentor = models.BooleanField(choices=TRUE_OR_FALSE,default=False)
+    mentees = models.CharField(max_length=10000,default='[]')
     worker_pool = models.CharField(max_length=1,choices=[('A','A'),('B','B')], default='A')
+
+    def set_mentees(self, mentees_list):
+        self.mentees = json.dumps(mentees_list)
+
+    def get_mentees(self):
+        return json.loads(self.mentees)
 
 
 class Tu(models.Model):
@@ -64,6 +77,27 @@ class Auditor(models.Model):
     completed_audits = models.IntegerField(default=0)
 
 
+class Sam(models.Model):
+    class Meta:
+        app_label = 'users'
+
+    user = models.OneToOneField(User, on_delete=models.CASCADE)
+    mentors = models.CharField(max_length=10000,default='[]')
+
+    def set_mentors(self, mentor_list):
+        self.mentors = json.dumps(mentor_list)
+
+    def get_mentors(self):
+        return json.loads(self.mentors)
+
+
+class Mentor(models.Model):
+    class Meta:
+        app_label = 'users'
+
+    user = models.OneToOneField(User, on_delete=models.CASCADE)
+
+
 @receiver(post_save, sender=User)
 def update_user_profile(sender, instance, created, **kwargs):
     if created:
@@ -71,7 +105,13 @@ def update_user_profile(sender, instance, created, **kwargs):
         Worker.objects.create(user=instance)
         Tu.objects.create(user=instance)
         Auditor.objects.create(user=instance)
+        Sam.objects.create(user=instance)
     instance.profile.save()
     instance.worker.save()
     instance.tu.save()
     instance.auditor.save()
+    instance.sam.save()
+
+    if instance.username == 'admin':
+        instance.profile.role = UserRoles.ADMIN.value
+        instance.profile.save()
