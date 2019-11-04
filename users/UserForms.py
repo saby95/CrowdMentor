@@ -32,9 +32,7 @@ class AddMentor(forms.Form):
         mentor_choices = kwargs.pop('mentor_choices')
         self.pool = kwargs.pop('pool')
         self.cur_mentor = kwargs.pop('cur_mentor')
-        self.set_mentor = kwargs.pop('set_mentor')
-        self.set_pool = kwargs.pop('set_pool')
-        submitted = kwargs.pop('submitted')
+        self.submitted = kwargs.pop('submitted')
         super(AddMentor, self).__init__(*args, **kwargs)
 
         CHOICES = [('Select','Select')]
@@ -48,14 +46,6 @@ class AddMentor(forms.Form):
             except:
                 pass
 
-        if submitted:
-            self.fields['mentor_ch'].initial = self.set_mentor
-            self.fields['pool'].initial = self.set_pool
-
     def clean(self, *args, **kwargs):
-
-        if self.set_mentor == 'Select':
+        if self.submitted == True:
             raise forms.ValidationError('This is not a valid choice')
-        elif (self.set_pool != self.pool):
-            if (self.set_mentor in self.cur_mentor):
-                raise forms.ValidationError('Already a mentor for current user')

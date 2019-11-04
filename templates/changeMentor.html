@@ -4,10 +4,20 @@
 <h4>Change Mentors for {{ username }}</h4>
 <h5>Current Mentors</h5>
 <div class="d-flex">
-    {% for mentor in cur_mentor %}
-    <p>{{ mentor }}</p>
-    {% endfor %}
+    <table class="table table table-hover">
+        <tbody>
+            {% for mentor in cur_mentor %}
+            <tr>
+                <th>
+                    {{ mentor }}
+                </th>
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
 </div>
+<h5>Make changes</h5>
+<div class="d-flex">
     <form method="post">
         {% csrf_token %}
         {% for field in form %}

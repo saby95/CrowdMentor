@@ -50,7 +50,10 @@ class Worker(models.Model):
     worker_pool = models.CharField(max_length=1,choices=pool_choices, default='A')
 
     def set_mentees(self, mentees_list):
-        self.mentees = json.dumps(mentees_list)
+        if not mentees_list:
+            self.mentees = json.dumps([])
+        else:
+            self.mentees = json.dumps(mentees_list)
 
     def get_mentees(self):
         return json.loads(self.mentees)
@@ -84,7 +87,10 @@ class Sam(models.Model):
     mentors = models.CharField(max_length=10000,default='[]')
 
     def set_mentors(self, mentor_list):
-        self.mentors = json.dumps(mentor_list)
+        if not mentor_list:
+            self.mentors = json.dumps([])
+        else:
+            self.mentors = json.dumps(mentor_list)
 
     def get_mentors(self):
         return json.loads(self.mentors)
@@ -95,6 +101,9 @@ class Mentor(models.Model):
         app_label = 'users'
 
     user = models.OneToOneField(User, on_delete=models.CASCADE)
+
+
+########    Services      ######
 
 
 @receiver(post_save, sender=User)
@@ -114,3 +123,12 @@ def update_user_profile(sender, instance, created, **kwargs):
     if instance.username == 'admin':
         instance.profile.role = UserRoles.ADMIN.value
         instance.profile.save()
+
+@receiver(post_save, sender=Sam)
+def update_mentees(sender, instance, **kwargs):
+    for usrname in instance.get_mentors():
+        print(usrname)
+        cur_mentor = User.objects.get(username=usrname)
+        if instance.user.username not in cur_mentor.worker.get_mentees():
+            cur_mentor.worker.set_mentees(cur_mentor.worker.get_mentees().append(instance.user.username))
+            cur_mentor.worker.save()

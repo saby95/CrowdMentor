@@ -164,7 +164,7 @@ def change_mentor(request, usrname):
         return HttpResponseRedirect('/')
 
     usr = User.objects.get(username=usrname)
-    usr_mentors = user.sam.get_mentors()
+    usr_mentors = usr.sam.get_mentors()
 
     mentors = Mentor.objects.all()
     mentors_list = []
@@ -172,51 +172,54 @@ def change_mentor(request, usrname):
     for mentor in mentors:
         mentors_list.append(mentor.user.username)
 
-    print(mentors_list)
-
     cur_mentor = usr.sam.get_mentors()
-    new_form = AddMentor(mentor_choices=mentors_list,
-                         pool=usr.worker.worker_pool, cur_mentor=cur_mentor,
-                         set_mentor=None, set_pool=None, submitted= False)
+    submitted = False
 
     if request.method == 'POST':
 
         set_mentor = request.POST.get('mentor_ch')
         set_pool = request.POST.get('pool')
-        form = AddMentor(mentor_choices=mentors_list,
-                         pool=usr.worker.worker_pool, cur_mentor=cur_mentor,
-                         set_mentor=set_mentor, set_pool=set_pool, submitted= True)
-        if form.is_valid():
-            print('form_valid')
-            selected_pool = form.cleaned_data.get('pool')
-            if usr.worker.worker_pool != selected_pool:
-                for mentor in usr_mentors:
-                    mentor_user = User.objects.get(username=mentor)
+        selected_pool = set_pool
+        usr_mentors = usr.sam.get_mentors()
+        print(usr_mentors)
+
+        if set_mentor == 'Select':
+            submitted = True
+        else:
+            if set_pool == usr.worker.worker_pool and set_mentor in cur_mentor:
+                submitted = True
+            else:
+                if (usr.worker.worker_pool != selected_pool) or (selected_pool=='A'):
+                    print('different pool or pool A')
+                    for usrname in usr_mentors:
+                        cur_mentor = User.objects.get(username=usrname)
+                        if usr.username in cur_mentor.worker.get_mentees():
+                            print('removing mentor')
+                            cur_mentor.worker.set_mentees(cur_mentor.worker.get_mentees().remove(usr.username))
+                            cur_mentor.worker.save()
+                    usr_mentors = [set_mentor]
+                    cur_mentor = User.objects.get(username=set_mentor)
+                    if usr.username not in cur_mentor.worker.get_mentees():
+                        cur_mentor.worker.set_mentees(cur_mentor.worker.get_mentees().append(usr.username))
+                        cur_mentor.worker.save()
+                else:
+                    print('same_pool')
+                    new_mentor = set_mentor
+                    usr_mentors.append(new_mentor)
+                    mentor_user = User.objects.get(username=new_mentor)
                     mentees_list = mentor_user.worker.get_mentees()
-                    mentees_list.remove(usr)
+                    if usrname not in mentees_list:
+                        mentees_list.append(usrname)
                     mentor_user.worker.set_mentees(mentees_list)
                     mentor_user.worker.save()
-                usr_mentors = [form.cleaned_data.get('mentor_ch')]
-            else:
-                new_mentor = form.cleaned_data.get('mentor_ch')
-                usr_mentors.append(new_mentor)
-                mentor_user = User.objects.get(username=new_mentor)
-                mentees_list = mentor_user.worker.get_mentees()
-                if usrname not in mentees_list:
-                    mentees_list.append(usrname)
-                mentor_user.worker.set_mentees(mentees_list)
-                mentor_user.worker.save()
-            usr.sam.set_mentors(usr_mentors)
+                usr.worker.worker_pool = set_pool
+                usr.worker.save()
+                usr.sam.set_mentors(usr_mentors)
+                usr.sam.save()
 
-    mentors = Mentor.objects.all()
-    mentors_list = []
-
-    for mentor in mentors:
-        mentors_list.append(mentor.user.username)
 
     cur_mentor = usr.sam.get_mentors()
-    new_form = AddMentor(mentor_choices=mentors_list,
-                         pool=usr.worker.worker_pool, cur_mentor=cur_mentor,
-                         set_mentor=None, set_pool=None, submitted= False)
+    new_form = AddMentor(mentor_choices=mentors_list, pool=usr.worker.worker_pool,
+                         cur_mentor=cur_mentor,submitted= submitted)
 
     return render(request, 'changeMentor.html', {'username':usrname, 'cur_mentor': cur_mentor, 'form':new_form})
