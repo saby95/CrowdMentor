@@ -2,7 +2,7 @@ from __future__ import print_function
 from django.shortcuts import render,redirect
 from django.contrib.auth.decorators import login_required
 from django.contrib.auth.models import User
-from .models import Profile, UserRoles, Mentor, Worker
+from .models import Profile, UserRoles, Mentor
 from django.http import HttpResponseRedirect
 from django.contrib import messages
 from .UserForms import ChangeRolesForm, ChangeMentorStatus, AddMentor
@@ -17,13 +17,13 @@ def userDetails(user_id):
     dict_profile['email'] = user.email
     dict_profile['role'] = user.profile.role
     dict_profile['bdate'] = user.profile.Birth_date
-    dict_profile['salary'] = user.worker.salary
-    dict_profile['bonus'] = user.worker.bonus
-    dict_profile['fine'] = user.worker.fine
-    dict_profile['total_salary'] = user.worker.total_salary
-    dict_profile['claimed'] = user.worker.claimed_tasks
-    dict_profile['finished'] = user.worker.completed_tasks
-    dict_profile['worked'] = user.worker.open_tasks
+    dict_profile['salary'] = user.profile.salary
+    dict_profile['bonus'] = user.profile.bonus
+    dict_profile['fine'] = user.profile.fine
+    dict_profile['total_salary'] = user.profile.total_salary
+    dict_profile['claimed'] = user.profile.claimed_tasks
+    dict_profile['finished'] = user.profile.completed_tasks
+    dict_profile['worked'] = user.profile.open_tasks
     try:
         dict_profile['avgworked'] = (dict_profile['worked'] / dict_profile['finished'])
     except:
@@ -76,11 +76,11 @@ def change_roles(request):
         previous_role = usr.profile.role
         usr.profile.role = posted_request['role']
         if (previous_role == UserRoles.WORKER.value) or (previous_role == UserRoles.AUDITOR.value):
-            usr.worker.salary = posted_request['salary']
-            usr.worker.bonus = posted_request['bonus']
-            usr.worker.fine = posted_request['fine']
-            usr.worker.audit_prob_user = posted_request['audit_prob']
-        usr.worker.save()
+            usr.profile.salary = posted_request['salary']
+            usr.profile.bonus = posted_request['bonus']
+            usr.profile.fine = posted_request['fine']
+            usr.profile.audit_prob_user = posted_request['audit_prob']
+        usr.profile.save()
         usr.profile.save()
     user_dict=dict()
     for usr in users:
@@ -112,7 +112,7 @@ def mentor_status(request):
         all_keys = list(posted_request.keys())
         usrname = all_keys[len(all_keys)-1]
         usr_id = User.objects.get(username=usrname).id
-        worker = Worker.objects.get(user_id=usr_id)
+        worker = Profile.objects.get(user_id=usr_id)
         value = request.POST.get("mentor_status")
         if value == 'True':
             value = True
@@ -148,7 +148,7 @@ def mentor_status(request):
     worker_context = {}
     for profile in profiles:
         if profile.role == UserRoles.WORKER.value:
-            worker_context[profile.user.username] = ChangeMentorStatus(value=profile.user.worker.is_Mentor)
+            worker_context[profile.user.username] = ChangeMentorStatus(value=profile.user.profile.is_Mentor)
 
     return render(request, 'mentorStatus.html', {'user_dict': worker_context})
 
@@ -164,7 +164,7 @@ def change_mentor(request, usrname):
         return HttpResponseRedirect('/')
 
     usr = User.objects.get(username=usrname)
-    usr_mentors = usr.sam.get_mentors()
+    usr_mentors = usr.profile.get_mentors()
 
     mentors = Mentor.objects.all()
     mentors_list = []
@@ -172,7 +172,7 @@ def change_mentor(request, usrname):
     for mentor in mentors:
         mentors_list.append(mentor.user.username)
 
-    cur_mentor = usr.sam.get_mentors()
+    cur_mentor = usr.profile.get_mentors()
     submitted = False
     same_mentor = False
 
@@ -181,47 +181,47 @@ def change_mentor(request, usrname):
         set_mentor = request.POST.get('mentor_ch')
         set_pool = request.POST.get('pool')
         selected_pool = set_pool
-        usr_mentors = usr.sam.get_mentors()
+        usr_mentors = usr.profile.get_mentors()
         print(usr_mentors)
 
         if set_mentor == 'Select':
             submitted = True
         else:
-            if set_pool == usr.worker.worker_pool and set_mentor in cur_mentor:
+            if set_pool == usr.profile.worker_pool and set_mentor in cur_mentor:
                 same_mentor = True
             else:
-                if (usr.worker.worker_pool != selected_pool) or (selected_pool=='A'):
+                if (usr.profile.worker_pool != selected_pool) or (selected_pool=='A'):
                     for usrname in usr_mentors:
                         cur_mentor = User.objects.get(username=usrname)
-                        if usr.username in cur_mentor.worker.get_mentees():
+                        if usr.username in cur_mentor.profile.get_mentees():
                             print('removing mentor')
-                            cur_mentor.worker.set_mentees(cur_mentor.worker.get_mentees().remove(usr.username))
-                            cur_mentor.worker.save()
+                            cur_mentor.profile.set_mentees(cur_mentor.profile.get_mentees().remove(usr.username))
+                            cur_mentor.profile.save()
                     usr_mentors = [set_mentor]
                     cur_mentor = User.objects.get(username=set_mentor)
-                    if usr.username not in cur_mentor.worker.get_mentees():
-                        cur_mentees = cur_mentor.worker.get_mentees()
+                    if usr.username not in cur_mentor.profile.get_mentees():
+                        cur_mentees = cur_mentor.profile.get_mentees()
                         cur_mentees.append(usr.username)
-                        cur_mentor.worker.set_mentees(cur_mentees)
-                        cur_mentor.worker.save()
-                        print(cur_mentor.worker.get_mentees())
+                        cur_mentor.profile.set_mentees(cur_mentees)
+                        cur_mentor.profile.save()
+                        print(cur_mentor.profile.get_mentees())
                 else:
                     new_mentor = set_mentor
                     usr_mentors.append(new_mentor)
                     mentor_user = User.objects.get(username=new_mentor)
-                    mentees_list = mentor_user.worker.get_mentees()
+                    mentees_list = mentor_user.profile.get_mentees()
                     if usrname not in mentees_list:
                         mentees_list.append(usrname)
-                    mentor_user.worker.set_mentees(mentees_list)
-                    mentor_user.worker.save()
-                usr.worker.worker_pool = set_pool
-                usr.worker.save()
-                usr.sam.set_mentors(usr_mentors)
-                usr.sam.save()
+                    mentor_user.profile.set_mentees(mentees_list)
+                    mentor_user.profile.save()
+                usr.profile.worker_pool = set_pool
+                usr.profile.save()
+                usr.profile.set_mentors(usr_mentors)
+                usr.profile.save()
 
 
-    cur_mentor = usr.sam.get_mentors()
-    new_form = AddMentor(mentor_choices=mentors_list, pool=usr.worker.worker_pool,
+    cur_mentor = usr.profile.get_mentors()
+    new_form = AddMentor(mentor_choices=mentors_list, pool=usr.profile.worker_pool,
                          cur_mentor=cur_mentor,submitted= submitted, same_mentor=same_mentor)
     new_form.full_clean()
 

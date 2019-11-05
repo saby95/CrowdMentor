@@ -14,10 +14,10 @@ class ChangeRolesForm(forms.Form):
         self.fields['existing_role'] = forms.CharField(initial=usr.profile.role,
                                                        widget=forms.TextInput(attrs={'readonly':'readonly'}))
         self.fields['role'] = forms.ChoiceField(choices=choices, initial=usr.profile.role, required=False)
-        self.fields['salary'] = forms.FloatField(label='Salary', initial=usr.worker.salary, required=False)
-        self.fields['bonus'] = forms.FloatField(label='Bonus', initial=usr.worker.bonus, required=False)
-        self.fields['fine'] = forms.FloatField(label='Fine', initial=usr.worker.fine, required=False)
-        self.fields['audit_prob'] = forms.FloatField(label='Audit Probability', initial=usr.worker.audit_prob_user, required=False)
+        self.fields['salary'] = forms.FloatField(label='Salary', initial=usr.profile.salary, required=False)
+        self.fields['bonus'] = forms.FloatField(label='Bonus', initial=usr.profile.bonus, required=False)
+        self.fields['fine'] = forms.FloatField(label='Fine', initial=usr.profile.fine, required=False)
+        self.fields['audit_prob'] = forms.FloatField(label='Audit Probability', initial=usr.profile.audit_prob_user, required=False)
 
 
 class ChangeMentorStatus(forms.Form):
