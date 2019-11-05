@@ -55,9 +55,6 @@ def profileview(request):
         dict_profile[request.user.username] = userDetails(user_id)
         return render(request, 'home.html', {'dict_profile': dict_profile})
 
-    elif profile == UserRoles.TASK_UPDATER.value:
-        return  render(request, 'home.html', {'dict_profile': dict_profile})
-
 @login_required
 def change_roles(request):
     user = User.objects.get(username=request.user.username)
