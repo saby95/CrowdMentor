@@ -174,6 +174,7 @@ def change_mentor(request, usrname):
 
     cur_mentor = usr.sam.get_mentors()
     submitted = False
+    same_mentor = False
 
     if request.method == 'POST':
 
@@ -187,10 +188,9 @@ def change_mentor(request, usrname):
             submitted = True
         else:
             if set_pool == usr.worker.worker_pool and set_mentor in cur_mentor:
-                submitted = True
+                same_mentor = True
             else:
                 if (usr.worker.worker_pool != selected_pool) or (selected_pool=='A'):
-                    print('different pool or pool A')
                     for usrname in usr_mentors:
                         cur_mentor = User.objects.get(username=usrname)
                         if usr.username in cur_mentor.worker.get_mentees():
@@ -200,10 +200,12 @@ def change_mentor(request, usrname):
                     usr_mentors = [set_mentor]
                     cur_mentor = User.objects.get(username=set_mentor)
                     if usr.username not in cur_mentor.worker.get_mentees():
-                        cur_mentor.worker.set_mentees(cur_mentor.worker.get_mentees().append(usr.username))
+                        cur_mentees = cur_mentor.worker.get_mentees()
+                        cur_mentees.append(usr.username)
+                        cur_mentor.worker.set_mentees(cur_mentees)
                         cur_mentor.worker.save()
+                        print(cur_mentor.worker.get_mentees())
                 else:
-                    print('same_pool')
                     new_mentor = set_mentor
                     usr_mentors.append(new_mentor)
                     mentor_user = User.objects.get(username=new_mentor)
@@ -220,6 +222,7 @@ def change_mentor(request, usrname):
 
     cur_mentor = usr.sam.get_mentors()
     new_form = AddMentor(mentor_choices=mentors_list, pool=usr.worker.worker_pool,
-                         cur_mentor=cur_mentor,submitted= submitted)
+                         cur_mentor=cur_mentor,submitted= submitted, same_mentor=same_mentor)
+    new_form.full_clean()
 
     return render(request, 'changeMentor.html', {'username':usrname, 'cur_mentor': cur_mentor, 'form':new_form})

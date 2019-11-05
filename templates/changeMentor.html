@@ -8,9 +8,9 @@
         <tbody>
             {% for mentor in cur_mentor %}
             <tr>
-                <th>
+                <td>
                     {{ mentor }}
-                </th>
+                </td>
             </tr>
             {% endfor %}
         </tbody>
@@ -26,6 +26,15 @@
             {{ field }}
         </p>
         {% endfor %}
+        {% if form.submitted %}
+              <div class="non-field-errors">
+                  <p class="form-error">'Select' is not a valid choice</p>
+              </div>
+        {% elif form.same_mentor %}
+              <div class="non-field-errors">
+                  <p class="form-error">Selected choice is already a mentor</p>
+              </div>
+        {% endif %}
         <button type="submit" id="submit_form" class="btn btn-danger">
             Update
         </button>

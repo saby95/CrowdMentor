@@ -1,6 +1,7 @@
 from django import forms
 from .models import UserRoles, TRUE_OR_FALSE, pool_choices
 from django.contrib.auth.models import User
+from django.forms.forms import NON_FIELD_ERRORS
 
 class ChangeRolesForm(forms.Form):
     def __init__(self, *args, **kwargs):
@@ -33,6 +34,7 @@ class AddMentor(forms.Form):
         self.pool = kwargs.pop('pool')
         self.cur_mentor = kwargs.pop('cur_mentor')
         self.submitted = kwargs.pop('submitted')
+        self.same_mentor = kwargs.pop('same_mentor')
         super(AddMentor, self).__init__(*args, **kwargs)
 
         CHOICES = [('Select','Select')]
@@ -45,7 +47,3 @@ class AddMentor(forms.Form):
                 self.fields['mentor_ch'].initial = self.cur_mentor[0]
             except:
                 pass
-
-    def clean(self, *args, **kwargs):
-        if self.submitted == True:
-            raise forms.ValidationError('This is not a valid choice')
