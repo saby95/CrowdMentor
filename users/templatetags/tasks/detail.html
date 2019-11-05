@@ -1,0 +1,17 @@
+{% extends 'base.html' %}
+
+{% block content %}
+<div class="jumbotron">
+
+    <h3 class="display-6">{{task.task_summary}}</h3><br />
+{{ task.task_desc }}<br />
+
+    <hr class="my-4">
+
+<a href="/tasks/" class="btn btn-secondary" role="button">{{ 'Back' }}</a>
+{% if claim_permission %}
+    &emsp;&emsp;&emsp;
+    <a href="/tasks/{{ task.id }}/claim" class="btn btn-danger" role="button">Claim</a>
+{% endif %}
+</div>
+{% endblock %}

@@ -1,0 +1,15 @@
+{% extends 'base.html' %}
+
+{% block content %}
+{% if task_list %}
+<h4 class="display-10">Available tasks: </h4>
+    <ul>
+    {% for task in task_list %}
+
+        <li><a href="/tasks/{{ task.id }}/">{{ task.task_summary }}</a></li>
+    {% endfor %}
+    </ul>
+{% else %}
+    <p>No tasks are available.</p>
+{% endif %}
+{% endblock %}

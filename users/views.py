@@ -6,6 +6,7 @@ from .models import Profile, UserRoles, Mentor
 from django.http import HttpResponseRedirect
 from django.contrib import messages
 from .UserForms import ChangeRolesForm, ChangeMentorStatus, AddMentor
+from tasks.views import index
 
 def userDetails(user_id):
     dict_profile = {}
@@ -54,6 +55,8 @@ def profileview(request):
     elif profile == UserRoles.WORKER.value:
         dict_profile[request.user.username] = userDetails(user_id)
         return render(request, 'home.html', {'dict_profile': dict_profile})
+    else:
+        return index(request)
 
 @login_required
 def change_roles(request):

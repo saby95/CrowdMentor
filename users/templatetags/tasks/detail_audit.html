@@ -1,0 +1,19 @@
+{% extends 'base.html' %}
+
+{% block content %}
+<div class="jumbotron">
+
+    <h3 class="display-6">{{audit_task.task_id}}</h3><br />
+{{audit_task.task_id.task_desc }}<br />
+
+    <hr class="my-4">
+Answer : {{tuj.answer}} <br />
+Confidence Level : {{tuj.confidence_level}} <br \>
+Comment : {{tuj.comment}} <br \>
+<hr class="my-4">
+
+<a href="/tasks/open_audits/" class="btn btn-secondary" role="button">{{ 'Back' }}</a>&emsp;&emsp;&emsp;
+<a href="/tasks/audits/{{ audit_task.task_id.id }}/claim_audit" class="btn btn-danger" role="button">Claim</a>
+{% endblock %}
+
+

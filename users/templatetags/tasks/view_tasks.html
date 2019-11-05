@@ -1,0 +1,48 @@
+{% extends 'base.html' %}
+
+{% block content %}
+<div class="jumbotron">
+    <h4 class="display-6">Task Description</h4>
+    <p>{{ task_list.0 }}</p>
+
+    <h4 class="display-6">Task Summary</h4>
+    <p>{{ task_list.1 }}</p>
+
+    <hr class="my-4">
+
+    {% if task_list|length > 2 %}
+    <h4 class="display-6">Answer</h4>
+    <p>{{ task_list.2 }}</p>
+
+    <h4 class="display-6">Comment</h4>
+    <p>{{ task_list.3 }}</p>
+
+    <h4 class="display-6">Confidence Level</h4>
+    <p>{{ task_list.4 }}</p>
+
+    <hr class="my-4">
+    {% endif %}
+
+
+
+    {% if task_list|length > 5 %}
+
+    <h4 class="display-6">Audit status</h4>
+    <p>{{ task_list.5 }}</p>
+
+    <hr class="my-4">
+    {% endif %}
+
+    {% if task_list|length > 6 %}
+
+    <h4 class="display-6">Audit review</h4>
+    <p>{{ task_list.6 }}</p>
+    {% endif %}
+</div>
+
+<div class="d-flex">
+      <div>
+         <a href="/tasks/task_status/{{ user_id }}" class="btn btn-secondary" role="button">Back</a>
+      </div>
+</div>
+{% endblock %}

@@ -1,0 +1,25 @@
+{% extends 'base.html' %}
+
+{% block content %}
+{% if tuj_list %}
+<h4 class="display-10">Tasks to complete: </h4>
+    <ul>
+    {% for tuj in tuj_list %}
+        {% if tuj.answer is None %}
+               <li><a href="/tasks/claimed/{{ tuj.task_id.id }}/answer">{{ tuj.task_id}}</a></li>
+        {% endif %}
+    {% endfor %}
+    </ul>
+<h4 class="display-10">Completed tasks:</h4>
+    <ul>
+    {% for tuj in tuj_list %}
+        {% if tuj.answer is None %}
+        {% else %}
+               <li>{{ tuj.task_id}}</li>
+        {% endif %}
+    {% endfor %}
+    </ul>
+{% else %}
+    <p>No tasks are available.</p>
+{% endif %}
+{% endblock %}

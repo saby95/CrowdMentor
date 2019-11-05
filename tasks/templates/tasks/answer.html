@@ -1,0 +1,27 @@
+{% extends 'base.html' %}
+
+{% block content %}
+
+<div class="jumbotron">
+
+    <h3 class="display-6">{{task.task_summary}}</h3><br />
+{{ task.task_desc }}
+</div>
+<div class="row centered-form center-block">
+  <div class="container col-md-3 col-md-offset-1">
+    <form method="post">
+    {% csrf_token %}
+    {{form.as_p}}
+
+    <div class="d-flex">
+      <div>
+         <button type="submit" id="submit" class="btn btn-danger">Submit</button>
+      </div>
+      <div class="ml-auto">
+         <a class="btn btn-secondary" href="/tasks/claimed" role="button">Cancel</a>
+      </div>
+    </div>
+    </form>
+  </div>
+</div>
+{% endblock %}

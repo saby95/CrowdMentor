@@ -1,0 +1,31 @@
+{% extends 'base.html' %}
+
+{% block content %}
+<div class="jumbotron">
+
+    <h3 class="display-6">{{audit_task.task_id}}</h3><br />
+{{audit_task.task_id.task_desc }}<br />
+
+    <hr class="my-4">
+Answer : {{tuj.answer}} <br />
+Confidence Level : {{tuj.confidence_level}} <br \>
+Comment : {{tuj.comment}} <br \>
+</div>
+<div class="row centered-form center-block">
+  <div class="container col-md-3 col-md-offset-1">
+<form method="post">
+    {% csrf_token %}
+    {{form.as_p}}
+    <div class="d-flex">
+      <div>
+         <button type="submit" id="submit" class="btn btn-danger">Submit</button>
+      </div>
+      <div class="ml-auto">
+         <a class="btn btn-secondary" href="/tasks/audits" role="button">Cancel</a>
+      </div>
+    </div>
+    </form>
+  </div>
+</div>
+
+{% endblock %}

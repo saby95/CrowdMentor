@@ -1,0 +1,29 @@
+{% extends 'base.html' %}
+
+{% block content %}
+<div class="container">
+<table class="table table-sm">
+    <thead>
+    <tr class="table-light">
+        <th>Username</th>
+        <th>Task summary</th>
+        <th>Task Status</th>
+    </tr>
+    </thead>
+{% for item in user_names %}
+    <thead>
+    <tr class="table-{{item.5}}">
+        <th>{{ item.0 }}</th>
+        <th>{{ item.1 }}</th>
+        <th><a href="/tasks/view_task/{{ item.4 }}/{{ item.3 }}/">{{ item.2 }}</a></th>
+    </tr>
+    </thead>
+{% endfor %}
+</table>
+</div>
+
+{% if admin_permission %}
+    &emsp;&emsp;&emsp;
+    <a href="/tasks/all_task_status" class="btn btn-secondary" role="button">Back</a>
+{% endif %}
+{% endblock %}

@@ -1,0 +1,14 @@
+{% extends 'base.html' %}
+
+{% block content %}
+{% if audit_list %}
+<h4 class="display-10">Available tasks for audit: </h4>
+    <ul>
+    {% for audit in audit_list %}
+        <li><a href="/tasks/open_audits/{{ audit.task_id.id }}/">{{ audit.task_id }}</a></li>
+    {% endfor %}
+    </ul>
+{% else %}
+    <p>No tasks are available.</p>
+{% endif %}
+{% endblock %}
