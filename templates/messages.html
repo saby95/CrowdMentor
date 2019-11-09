@@ -4,38 +4,23 @@
 {% block header_text %}MultiChat Example{% endblock %}
 
 {% block content %}
-  <meta charset="utf-8">
+{% load staticfiles %}
+<head>
+    <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.4.0/css/bootstrap.min.css">
-  <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.4.1/jquery.min.js"></script>
+  <!--script src="{% static "js/jquery-1.12.2.min.js" %}" type="text/javascript"></script-->
+  <script src="http://ajax.googleapis.com/ajax/libs/jquery/1.12.2/jquery.min.js"></script>
   <script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.4.0/js/bootstrap.min.js"></script>
-    <!--ul class="rooms">
-        {% for room in rooms %}
-            <li class="room-link" data-room-id="{{ room.id }}">{{ room }}</li>
-        {% empty %}
-            <p class="empty">No chat rooms defined. Maybe make some in the <a href="{% url 'admin:index' %}">admin</a>?</p>
-        {% endfor %}
-    </ul-->
-  <h3>Tasks</h3>
-  <ul class="nav nav-pills">
-    {% for room in rooms %}
-            <li class="room-link" id="{{ room.id }}" data-room-id="{{ room.id }}"><a>{{ room }}</a></li>
-        {% empty %}
-            <p class="empty">No chat rooms defined. Maybe make some in the <a href="{% url 'admin:index' %}">admin</a>?</p>
-        {% endfor %}
-  </ul>
-    <div id="chats">
-    </div>
-
-{% endblock %}
-
-
-{% block extra_body %}
-    <script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/reconnecting-websocket/1.0.0/reconnecting-websocket.js" type="text/javascript"></script>
+  <!--script src="{% static "js/reconnecting-websocket.min.js" %}" type="text/javascript"></script-->
+  {% block extra_head %} {% endblock %}
+<script>
+    
         $(function () {
             // Correctly decide between ws:// and wss://
             var ws_scheme = window.location.protocol == "https:" ? "wss" : "ws";
-            var ws_path = ws_scheme + '://' + window.location.host + "/chat/stream/";
+            var ws_path = ws_scheme + '://' + window.location.host + "/messages/stream/";
             console.log("Connecting to " + ws_path);
             var socket = new ReconnectingWebSocket(ws_path);
 
@@ -164,5 +149,28 @@
                 console.log("Disconnected from chat socket");
             }
         });
-    </script>
+</script>
+    </head>
+    <!--ul class="rooms">
+        {% for room in rooms %}
+            <li class="room-link" data-room-id="{{ room.id }}">{{ room }}</li>
+        {% empty %}
+            <p class="empty">No chat rooms defined. Maybe make some in the <a href="{% url 'admin:index' %}">admin</a>?</p>
+        {% endfor %}
+    </ul-->
+  <h3 id="123">Tasks</h3>
+  <ul class="nav nav-pills">
+    {% for room in rooms %}
+            <li class="room-link" id="{{ room.id }}" data-room-id="{{ room.id }}"><a>{{ room }}</a></li>
+        {% empty %}
+            <p class="empty">No chat rooms defined. Maybe make some in the <a href="{% url 'admin:index' %}">admin</a>?</p>
+        {% endfor %}
+  </ul>
+    <div id="chats">
+    </div>
+
+{% endblock %}
+
+{% block extra_body %}
+ 
 {% endblock %}
