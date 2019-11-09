@@ -40,6 +40,8 @@ INSTALLED_APPS = [
     'login',
     'users',
     'tasks',
+    #'channels',
+    'chat',
 ]
 
 MIDDLEWARE = [

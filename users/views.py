@@ -52,11 +52,9 @@ def profileview(request):
                 emp_profile[work_val['username']] = work_val
         return render(request, 'admin_view.html', {'dict_profile': dict_profile, 'emp_profile': emp_profile})
 
-    elif profile == UserRoles.WORKER.value:
+    else:
         dict_profile[request.user.username] = userDetails(user_id)
         return render(request, 'home.html', {'dict_profile': dict_profile})
-    else:
-        return index(request)
 
 @login_required
 def change_roles(request):
@@ -164,13 +162,16 @@ def change_mentor(request, usrname):
         return HttpResponseRedirect('/')
 
     usr = User.objects.get(username=usrname)
+    usrid = usr.id
     usr_mentors = usr.profile.get_mentors()
 
     mentors = Mentor.objects.all()
     mentors_list = []
+    mentor_form = []
 
     for mentor in mentors:
-        mentors_list.append(mentor.user.username)
+        mentors_list.append(mentor.user.id)
+        mentor_form.append((mentor.user.id,mentor.user.username))
 
     cur_mentor = usr.profile.get_mentors()
     submitted = False
@@ -191,27 +192,27 @@ def change_mentor(request, usrname):
                 same_mentor = True
             else:
                 if (usr.profile.worker_pool != selected_pool) or (selected_pool=='A'):
-                    for usrname in usr_mentors:
-                        cur_mentor = User.objects.get(username=usrname)
-                        if usr.username in cur_mentor.profile.get_mentees():
+                    for usrid in usr_mentors:
+                        cur_mentor = User.objects.get(id=usrid)
+                        if usr.id in cur_mentor.profile.get_mentees():
                             print('removing mentor')
-                            cur_mentor.profile.set_mentees(cur_mentor.profile.get_mentees().remove(usr.username))
+                            cur_mentor.profile.set_mentees(cur_mentor.profile.get_mentees().remove(usr.id))
                             cur_mentor.profile.save()
                     usr_mentors = [set_mentor]
-                    cur_mentor = User.objects.get(username=set_mentor)
-                    if usr.username not in cur_mentor.profile.get_mentees():
+                    cur_mentor = User.objects.get(id=set_mentor)
+                    if usr.id not in cur_mentor.profile.get_mentees():
                         cur_mentees = cur_mentor.profile.get_mentees()
-                        cur_mentees.append(usr.username)
+                        cur_mentees.append(usr.id)
                         cur_mentor.profile.set_mentees(cur_mentees)
                         cur_mentor.profile.save()
                         print(cur_mentor.profile.get_mentees())
                 else:
                     new_mentor = set_mentor
                     usr_mentors.append(new_mentor)
-                    mentor_user = User.objects.get(username=new_mentor)
+                    mentor_user = User.objects.get(id=new_mentor)
                     mentees_list = mentor_user.profile.get_mentees()
-                    if usrname not in mentees_list:
-                        mentees_list.append(usrname)
+                    if usrid not in mentees_list:
+                        mentees_list.append(usrid)
                     mentor_user.profile.set_mentees(mentees_list)
                     mentor_user.profile.save()
                 usr.profile.worker_pool = set_pool
@@ -221,8 +222,11 @@ def change_mentor(request, usrname):
 
 
     cur_mentor = usr.profile.get_mentors()
-    new_form = AddMentor(mentor_choices=mentors_list, pool=usr.profile.worker_pool,
+    new_form = AddMentor(mentor_choices=mentor_form, pool=usr.profile.worker_pool,
                          cur_mentor=cur_mentor,submitted= submitted, same_mentor=same_mentor)
     new_form.full_clean()
+    cur_mentor_user = []
+    for mentor in cur_mentor:
+        cur_mentor_user.append(User.objects.get(id=mentor))
 
-    return render(request, 'changeMentor.html', {'username':usrname, 'cur_mentor': cur_mentor, 'form':new_form})
+    return render(request, 'changeMentor.html', {'username':usrname, 'cur_mentor': cur_mentor_user, 'form':new_form})

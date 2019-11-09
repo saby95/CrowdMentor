@@ -39,7 +39,7 @@ class AddMentor(forms.Form):
 
         CHOICES = [('Select','Select')]
         for choice in mentor_choices:
-            CHOICES.append((choice,choice))
+            CHOICES.append(choice)
         self.fields['pool'] = forms.ChoiceField(choices=pool_choices,initial=self.pool,label='Worker Pool')
         self.fields['mentor_ch'] = forms.ChoiceField(choices=CHOICES, label='Select New mentor')
         if self.pool == 'A':
