@@ -1,0 +1,16 @@
+{% extends 'base.html' %}
+
+{% block content %}
+{% if broadcast_messages %}
+<h4 class="display-10">Broadcast Messages: </h4>
+{% for message in broadcast_messages %}
+<div class="container">
+    <div class="alert alert-primary" role="alert">
+        {{ message }} &emsp;&emsp;&emsp; <a href="/broadcast/{{message.id}}/{{message.br_params}}/claim" class="btn btn-primary" role="button">Claim</a>
+    </div>
+</div>
+{% endfor %}
+{% else %}
+    <p>No Broadcasts are available.</p>
+{% endif %}
+{% endblock %}

@@ -28,6 +28,7 @@
             socket.onmessage = function (message) {
                 // Decode the JSON
                 console.log("Got websocket message " + message.data);
+                console.log(message)
                 var data = JSON.parse(message.data);
                 // Handle errors
                 if (data.error) {
@@ -94,9 +95,9 @@
                             break;
                         case 4:
                             // User joined room
-                            ok_msg = "<div class='contextual-message text-muted'>" + data.username +
-                                    " joined the room!" +
-                                    "</div>";
+                            //ok_msg = "<div class='contextual-message text-muted'>" + data.username +
+                              //      " joined the room!" +
+                                //    "</div>";
                             break;
                         case 5:
                             // User left room
@@ -120,7 +121,11 @@
             inRoom = function (roomId) {
                 return $("#room-" + roomId).length > 0;
             };
+            //Start a new thread
 
+            $("#empty-thread").click(function(){
+
+            });
             // Room join/leave
             $("li.room-link").click(function () {
                 roomId = $(this).attr("data-room-id");
@@ -160,10 +165,10 @@
     </ul-->
   <h3 id="123">Tasks</h3>
   <ul class="nav nav-pills">
-    {% for room in rooms %}
-            <li class="room-link" id="{{ room.id }}" data-room-id="{{ room.id }}"><a>{{ room }}</a></li>
+    {% for tuj in tuj_list %}
+            <li class="room-link" id="{{ tuj.room_id }}" data-room-id="{{ tuj.room_id}}"><a>{{ tuj }}</a></li>
         {% empty %}
-            <p class="empty">No chat rooms defined. Maybe make some in the <a href="{% url 'admin:index' %}">admin</a>?</p>
+            <p class="empty" id="empty-thread"></p>
         {% endfor %}
   </ul>
     <div id="chats">

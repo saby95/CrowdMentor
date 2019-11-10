@@ -53,6 +53,7 @@ class TaskUserJunction(models.Model):
         (5, 'good')
     )
     task_id = models.ForeignKey(ResearchTasks, on_delete=models.DO_NOTHING)
+    room_id = models.IntegerField(default=0)
     worker_id = models.ForeignKey(User, on_delete=models.DO_NOTHING)
     claim_time = models.DateTimeField(auto_now_add=True)
     answer = models.CharField(max_length=500, null=True)

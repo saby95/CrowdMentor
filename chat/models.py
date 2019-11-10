@@ -1,5 +1,5 @@
 from django.db import models
-
+from tasks.models import TaskUserJunction
 
 class Room(models.Model):
     """
@@ -8,7 +8,6 @@ class Room(models.Model):
 
     # Room title
     title = models.CharField(max_length=255)
-
     # If only "staff" users are allowed (is_staff on django's User)
     staff_only = models.BooleanField(default=False)
 

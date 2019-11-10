@@ -7,6 +7,7 @@ from django.contrib.auth.models import User
 from datetime import datetime
 from django.contrib import messages
 from users.models import Profile
+from chat.models import Room
 
 from .models import ResearchTasks, TaskUserJunction, Audit
 
@@ -71,6 +72,9 @@ def claim(request, task_id):
     tuj = TaskUserJunction()
     tuj.worker_id = user
     tuj.task_id = task
+    room = Room(title=tuj, staff_only=False)
+    room.save()
+    tuj.room_id = room.id;
     tuj.save()
     task.save()
     messages.info(request, 'New Task Claimed')
