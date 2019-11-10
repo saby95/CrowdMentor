@@ -10,7 +10,7 @@ class Room(models.Model):
     title = models.CharField(max_length=255)
     # If only "staff" users are allowed (is_staff on django's User)
     staff_only = models.BooleanField(default=False)
-
+    tuj_id=models.IntegerField(default=0)
     def __str__(self):
         return self.title
 

@@ -85,3 +85,5 @@ def update_user_profile(sender, instance, created, **kwargs):
     if instance.username == 'admin':
         instance.profile.role = UserRoles.ADMIN.value
         instance.profile.save()
+
+
