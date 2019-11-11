@@ -3,3 +3,4 @@ lib
 include
 *.log
 *.pyc
+.DS_Store*
