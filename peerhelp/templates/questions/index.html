@@ -1,0 +1,32 @@
+{% extends 'base.html' %}
+
+{% block content %}
+<div class="row centered-form center-block">
+  <div class="container col-md-3 col-md-offset-1">
+<a href="/help/add_question/" class="btn btn-primary" role="button">Add Question</a></br></br></br>
+  </div>
+</div>
+    {%if collections%}
+         {% for collection in collections %}
+            <div class="jumbotron">
+                <a href="/help/{{ collection.question.id }}/">{{ collection.question.question_summary }}</a> </br> by
+                {{collection.question.creator_id}} at {{collection.question.creation_time}} </br>  {{collection.question.up_votes}}
+                {% if collection.upvote %}
+                    <a href="/help/{{ collection.question.id }}/upvote"><i class="fa fa-thumbs-up" aria-hidden="true"></i></a>
+                {% else %}
+                    <a href="/help/{{ collection.question.id }}/upvote"><i class="fa fa-thumbs-o-up" aria-hidden="true"></i></a>
+                {% endif %}
+                {{collection.question.down_votes}}
+                {% if collection.downvote %}
+                    <a href="/help/{{ collection.question.id }}/downvote"><i class="fa fa-thumbs-down" aria-hidden="true"></i></a>
+                {% else %}
+                    <a href="/help/{{ collection.question.id }}/downvote"><i class="fa fa-thumbs-o-down" aria-hidden="true"></i></a>
+                {% endif %}
+            </div>
+         {% endfor %}
+
+    {% else %}
+        <p>No questions are available.</p>
+    {% endif %}
+
+{% endblock %}

@@ -88,6 +88,7 @@ INSTALLED_APPS = [
     'tasks',
     'channels',
     'chat',
+    'peerhelp'
 ]
 
 MIDDLEWARE = [

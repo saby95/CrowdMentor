@@ -21,5 +21,6 @@ urlpatterns = [
     path('',include('login.urls')),
     path('',include('users.urls')),
     path('tasks/',include('tasks.urls')),
-    path('messages/',include('chat.urls'))
+    path('messages/',include('chat.urls')),
+    path('help/',include('peerhelp.urls'))
 ]

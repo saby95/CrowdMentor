@@ -1,0 +1,64 @@
+{% extends 'base.html' %}
+
+{% block content %}
+<div class="jumbotron">
+    <h3 class="display-6">{{question.question_summary}}</h3>
+    <p class="lead">{{question.question_desc}}</p>
+    {{question.up_votes}}
+    {% if ques_up_down.upvote %}
+          <a href="/help/{{ question.id }}/upvote"><i class="fa fa-thumbs-up" aria-hidden="true"></i></a>
+    {% else %}
+          <a href="/help/{{ question.id }}/upvote"><i class="fa fa-thumbs-o-up" aria-hidden="true"></i></a>
+    {% endif %}
+    {{question.down_votes}}
+    {% if ques_up_down.downvote %}
+          <a href="/help/{{ question.id }}/downvote"><i class="fa fa-thumbs-down" aria-hidden="true"></i></a>
+    {% else %}
+          <a href="/help/{{ question.id }}/downvote"><i class="fa fa-thumbs-o-down" aria-hidden="true"></i></a>
+    {% endif %}
+</div>
+
+
+
+    {%if collections%}
+         {% for collection in collections %}
+            <div class="jumbotron">
+                {{ collection.answer }}</a> </br> by
+                {{collection.answer.creator_id}} at {{collection.answer.creation_time}} </br>  {{collection.answer.up_votes}}
+                {% if collection.upvote %}
+                    <a href="/help/{{ question.id }}/{{collection.answer.id}}/upvote"><i class="fa fa-thumbs-up" aria-hidden="true"></i></a>
+                {% else %}
+                    <a href="/help/{{ question.id }}/{{collection.answer.id}}/upvote"><i class="fa fa-thumbs-o-up" aria-hidden="true"></i></a>
+                {% endif %}
+                {{collection.answer.down_votes}}
+                {% if collection.downvote %}
+                    <a href="/help/{{ question.id }}/{{collection.answer.id}}/downvote"><i class="fa fa-thumbs-down" aria-hidden="true"></i></a>
+                {% else %}
+                    <a href="/help/{{ question.id }}/{{collection.answer.id}}/downvote"><i class="fa fa-thumbs-o-down" aria-hidden="true"></i></a>
+                {% endif %}
+            </div>
+         {% endfor %}
+
+    {% else %}
+        <p>No questions are available.</p>
+    {% endif %}
+
+
+
+
+<div class="jumbotron">
+    <p class="lead">Submit answer</p>
+<form method="post">
+    {% csrf_token %}
+    {{form}}
+    <button id="id_add_answer" type="submit" class="btn btn-primary" role="button">Submit</button>
+</form>
+</div>
+
+<div class="row centered-form center-block">
+  <div class="container col-md-3 col-md-offset-1">
+        <a href="/help/" class="btn btn-secondary" role="button">Back</a>
+  </div>
+</div>
+
+{% endblock %}

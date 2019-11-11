@@ -1,0 +1,21 @@
+{% extends 'base.html' %}
+
+{% block content %}
+<div class="row centered-form center-block">
+  <div class="container col-md-3 col-md-offset-1">
+    <form method="post">
+        {% csrf_token %}
+        {{form.as_p}}
+
+         <div class="d-flex">
+      <div>
+         <button id="id_add_question" type="submit" class="btn btn-primary">Submit</button>
+      </div>
+      <div class="ml-auto">
+         <a href="/help/" class="btn btn-secondary" role="button">Back</a>
+      </div>
+    </div>
+    </form>
+  </div>
+</div>
+{% endblock %}
