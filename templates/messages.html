@@ -19,19 +19,26 @@
   
   {% block extra_head %} {% endblock %}
 <script>
-    
+    var mentee_tasks_div="";
         $(function () {
             // Correctly decide between ws:// and wss://
             var ws_scheme = window.location.protocol == "https:" ? "wss" : "ws";
             var ws_path = ws_scheme + '://' + window.location.host + "/messages/stream/";
+            //isMentor = false
+            /*if({{ isMentor }} == 'rue')
+                isMentor = true;
+            else
+                isMentor = false;*/
+            isMentor = ({{ isMentor }});
             console.log("Connecting to " + ws_path);
+            $("#participants").css("display","none");
+            //$("#mentee-tasks").css("display","none");
             var socket = new ReconnectingWebSocket(ws_path);
-
             // Handle incoming messages
             socket.onmessage = function (message) {
                 // Decode the JSON
                 console.log("Got websocket message " + message.data);
-                console.log(message)
+
                 var data = JSON.parse(message.data);
                 // Handle errors
                 if (data.error) {
@@ -40,14 +47,15 @@
                 }
                 // Handle joining
                 if (data.join) {
-                    console.log("Joining room " + data.join);
+                    console.log("Joining room " + data);
                     var roomdiv = $(
-                            "<div class='room' id='room-" + data.join + "'>" +
-                            "<h2>" + data.title + "</h2>" +
+                            "<div class='room' id='room-" + data.join + "'>"+
                             "<div class='messages'></div>" +
                             "<form><input><button>Send</button></form>" +
                             "</div>"
                     );
+                    console.log("sdknf");
+                    console.log(roomdiv);
                     // Hook up send button to send a message
                     roomdiv.find("form").on("submit", function () {
                         socket.send(JSON.stringify({
@@ -60,10 +68,10 @@
                     });
                     $(".active").removeClass("active")
                     document.getElementById(data.join).classList.add("active");
-                    
                     $("#chats").empty();
+                    $("#participants").css("display","block");
                     $("#chats").append(roomdiv);
-                    // Handle leaving
+                // Handle leaving
                 } else if (data.leave) {
                     console.log("Leaving room " + data.leave);
                     $("#room-" + data.leave).remove();
@@ -96,18 +104,6 @@
                             ok_msg = "<div class='contextual-message text-muted'>" + data.message +
                                     "</div>";
                             break;
-                       /* case 4:
-                            // User joined room
-                            //ok_msg = "<div class='contextual-message text-muted'>" + data.username +
-                              //      " joined the room!" +
-                                //    "</div>";
-                            break;
-                        case 5:
-                            // User left room
-                            ok_msg = "<div class='contextual-message text-muted'>" + data.username +
-                                    " left the room!" +
-                                    "</div>";
-                            break;*/
                         default:
                             console.log("Unsupported message type!");
                             return;
@@ -153,6 +149,36 @@
                 console.log("Disconnected from chat socket");
             }
         });
+    
+    /*function getMenteeTasks(event){
+    //import json;
+       mentee_name = (document.getElementById("recipient_name").value);
+       mentee_task_list = {{ mentee_task_list|safe }};
+       mentee_tasks = mentee_task_list[mentee_name];
+       console.log(mentee_task_list);  
+       ul = document.createElement('ul');
+        ul.classList.add("nav");
+        ul.classList.add("nav-pills");     
+       for(i=0;i<mentee_tasks.length;i++){
+        var li = document.createElement('li');
+        li.setAttribute("class","room-link");
+        li.setAttribute("id",mentee_tasks[i][1]);
+        li.setAttribute("data-room-id",mentee_tasks[i][1]);
+
+        aElem = document.createElement('a');
+        aElem.innerHTML = mentee_tasks[i][0];
+
+        li.appendChild(aElem);
+        
+        ul.appendChild(li);
+       }
+        document.getElementById("mentee_tasks").appendChild(ul);
+       }*/     
+      
+       // console.log(mentee_tasks_div);
+      //$("#mentee-tasks").empty();
+      //$("#mentee-tasks").append(mentee_tasks_div);
+
 </script>
     </head>
     <!--ul class="rooms">
@@ -162,7 +188,36 @@
             <p class="empty">No chat rooms defined. Maybe make some in the <a href="{% url 'admin:index' %}">admin</a>?</p>
         {% endfor %}
     </ul-->
-  <h3 id="123">Tasks</h3>
+  <h3>Tasks</h3>
+  {% if isMentor == 'true'%}
+  <!--span>Select a Worker</span>
+  <select id="recipient_name" name="recipient_name" onchange="getMenteeTasks()">
+        {% for y in chat_participants %}
+        <option value="">--Please choose an option--</option>
+        <option value="{{ y }}">{{ y}}</option>
+        {% endfor %}
+  </select-->
+<br/>
+  <span>Choose a Mentee Task Thread:</span>
+  <div id="mentee_tasks">
+<ul class="nav nav-pills">
+   {% for worker,tasklist in mentee_task_list.items %} 
+    <li><b>{{worker}}</b></li>
+    <span><b></b></span>
+    <br/>
+    <ul class="nav nav-pills">
+         {% for task in tasklist%} 
+         <li class="room-link" id="{{ task.1}}" data-room-id="{{ task.1}}"><a>{{ task.0 }}</a></li>
+         {% endfor %}
+    </ul>
+     {% endfor %}    
+   
+</ul>
+<br/><br/>
+<div id="chats">   
+    </div>
+  </div>
+  {% else %}
   <ul class="nav nav-pills">
     {% for tuj in tuj_list %}
             <li class="room-link" id="{{ tuj.room_id }}" data-room-id="{{ tuj.room_id}}"><a>{{ tuj }}</a></li>
@@ -170,9 +225,15 @@
             <p class="empty">You have no tasks claimed</p>
         {% endfor %}
   </ul>
-    <div id="chats">
+   <div id="participants">
+            <br/><br/>
+        {% for participant in chat_participants %}
+        <span>Send Message to: </span><b><span>{{participant}}</span></b>
+        {% endfor %}
     </div>
-
+    <div id="chats">   
+    </div>
+{% endif %}
 {% endblock %}
 
 {% block extra_body %}

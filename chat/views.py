@@ -44,6 +44,8 @@ def index(request):
             mentor_id = p.get_mentors()[0];
             user = User.objects.get(id=mentor_id);
             chat_participants.append(user.username);
+
+    print(mentee_task_list)
             
     # Render that in the index template
     return render(request, "messages.html", {
