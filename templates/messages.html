@@ -120,8 +120,6 @@
             inRoom = function (roomId) {
                 return $("#room-" + roomId).length > 0;
             };
-            //Start a new thread
-            // Room join/leave
             $("li.room-link").click(function () {
                 roomId = $(this).attr("data-room-id");
                 if (inRoom(roomId)) {
@@ -149,54 +147,11 @@
                 console.log("Disconnected from chat socket");
             }
         });
-    
-    /*function getMenteeTasks(event){
-    //import json;
-       mentee_name = (document.getElementById("recipient_name").value);
-       mentee_task_list = {{ mentee_task_list|safe }};
-       mentee_tasks = mentee_task_list[mentee_name];
-       console.log(mentee_task_list);  
-       ul = document.createElement('ul');
-        ul.classList.add("nav");
-        ul.classList.add("nav-pills");     
-       for(i=0;i<mentee_tasks.length;i++){
-        var li = document.createElement('li');
-        li.setAttribute("class","room-link");
-        li.setAttribute("id",mentee_tasks[i][1]);
-        li.setAttribute("data-room-id",mentee_tasks[i][1]);
-
-        aElem = document.createElement('a');
-        aElem.innerHTML = mentee_tasks[i][0];
-
-        li.appendChild(aElem);
-        
-        ul.appendChild(li);
-       }
-        document.getElementById("mentee_tasks").appendChild(ul);
-       }*/     
-      
-       // console.log(mentee_tasks_div);
-      //$("#mentee-tasks").empty();
-      //$("#mentee-tasks").append(mentee_tasks_div);
 
 </script>
     </head>
-    <!--ul class="rooms">
-        {% for room in rooms %}
-            <li class="room-link" data-room-id="{{ room.id }}">{{ room }}</li>
-        {% empty %}
-            <p class="empty">No chat rooms defined. Maybe make some in the <a href="{% url 'admin:index' %}">admin</a>?</p>
-        {% endfor %}
-    </ul-->
   <h3>Tasks</h3>
   {% if isMentor == 'true'%}
-  <!--span>Select a Worker</span>
-  <select id="recipient_name" name="recipient_name" onchange="getMenteeTasks()">
-        {% for y in chat_participants %}
-        <option value="">--Please choose an option--</option>
-        <option value="{{ y }}">{{ y}}</option>
-        {% endfor %}
-  </select-->
 <br/>
   <span>Choose a Mentee Task Thread:</span>
   <div id="mentee_tasks">
