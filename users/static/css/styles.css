@@ -1,0 +1,18 @@
+
+    .input {
+        width: -moz-available;
+       
+    }
+
+    .poolA {
+        background-color: aquamarine;
+    }
+
+    .poolB {
+        background-color: rebeccapurple;
+    }
+
+    .radio li{
+        display: inline-block;
+        margin-right: 10%;
+    }

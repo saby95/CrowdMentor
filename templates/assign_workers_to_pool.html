@@ -1,0 +1,52 @@
+{% extends 'base.html' %}
+
+{%load extra_filters%}
+
+
+{% block content %}
+<h4>Assign pools to workers</h4>
+<div class="d-flex">
+    <table class="table table table-hover" style="table-layout: fixed;">
+        <thead>
+        <tr>
+            <th scope="col">Username</th>
+            <th scope="col">Assign Workers to Pools</th>
+            <th scope="col">Assign Mentors</th>
+            <th scope="col">Assigned Mentors</th>
+            <th></th>
+            
+        </tr>
+        </thead>
+        <tbody>
+        {% for key, value in user_dict.items %}
+            <tr>
+                    <form method="post">
+                            {% csrf_token %}
+                    <td>{{ key }}</td>
+                        <!-- <td>{{value.poolA}}</td>
+                        <td>{{value.poolB}}</td> -->
+                        <td>{{value.form.radio}}</td>
+                        <td>{{value.form.mentors}}</td>
+                        
+                        <td>    
+                                <ul>
+                                {% for mentor in value.current_mentors %}
+                                <li>{{mentor}}</li>
+                                {% endfor %}
+                                </ul>
+
+                        </td>
+                        <td ><button type="submit" id="id_change_pool" class="btn btn-danger" name="{{ key }}">
+                                Submit  
+                            </button></td>
+                    </form>
+                        
+                    
+            </tr>
+        {% endfor %}
+        </tbody>
+    </table>
+</div>
+
+{% endblock %}
+

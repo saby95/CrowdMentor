@@ -2,10 +2,10 @@ from __future__ import print_function
 from django.shortcuts import render,redirect
 from django.contrib.auth.decorators import login_required
 from django.contrib.auth.models import User
-from .models import Profile, UserRoles, Mentor
+from .models import Profile, UserRoles, Mentor, pool_choices
 from django.http import HttpResponseRedirect
 from django.contrib import messages
-from .UserForms import ChangeRolesForm, ChangeMentorStatus, AddMentor
+from .UserForms import ChangeRolesForm, ChangeMentorStatus, AddMentor, AssignPools
 from tasks.views import index
 
 def userDetails(user_id):
@@ -32,6 +32,67 @@ def userDetails(user_id):
 
     return dict_profile
 
+@login_required
+def pool_status(request):
+    if request.method == 'POST':
+        posted_request = request.POST.dict()
+        all_keys = list(posted_request.keys())
+        usrname = all_keys[len(all_keys)-1]
+        usr = User.objects.get(username=usrname)
+        
+        if(request.POST.get('mentors') == 'Select'):
+            messages.warning(request, 'Please add a valid mentor!')
+            return HttpResponseRedirect('/pool_status')
+        print(type(usr.id))
+        print(type(request.POST.get('mentors')))
+        if(str(usr.id) == request.POST.get('mentors')):
+            print("cAME HERE")
+            messages.warning(request, 'Cannot assign the worker as a mentor to himself!')
+            return HttpResponseRedirect('/pool_status')
+
+        if(usr.profile.worker_pool==request.POST.get('radio') and request.POST.get('mentors') in usr.profile.get_mentors() ):
+            messages.warning(request, 'Mentor already added!')
+            return HttpResponseRedirect('/pool_status')
+        
+
+        if(request.POST.get('radio') == 'A'):
+            usr.profile.set_mentors([request.POST.get('mentors')])
+        else:
+            original_mentors = usr.profile.get_mentors()
+            if(usr.profile.worker_pool != request.POST.get('radio')):
+                original_mentors = []
+            
+            original_mentors.append(request.POST.get('mentors'))   
+            usr.profile.set_mentors(original_mentors)
+
+        usr.profile.worker_pool = request.POST.get('radio')
+        usr.profile.save()
+        # set_pool = request.POST.get('pool')
+        # selected_pool = set_pool
+        # usr.profile.worker_pool = set_pool
+        # usr.profile.save()
+
+    user_dict=dict()
+    users = User.objects.all()
+    mentors = Mentor.objects.all()
+    mentors_list = []
+    mentor_form = [('Select','Select')]
+
+    for mentor in mentors:
+        # mentors_list.append(mentor.user.id)
+        mentor_form.append((mentor.user.id,mentor.user.username))
+    for usr in users:
+        if (usr.profile.role == UserRoles.ADMIN.value):
+            continue
+        form = AssignPools(value=usr.id, mentors=mentor_form)
+        current_mentors = []
+        for mentor in usr.profile.get_mentors():
+            current_mentors.append(User.objects.get(id=mentor))
+
+        user_dict[usr.username] = {'form':form,'current_mentors':current_mentors}
+        # print(user_dict[usr.username]['current_mentors'])
+
+    return render(request, 'assign_workers_to_pool.html', {'user_dict':user_dict})
 
 @login_required
 def profileview(request):

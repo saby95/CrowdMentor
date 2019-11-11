@@ -6,7 +6,7 @@
 {% block content %}
 <h4>Welcome, admin!</h4>
 <div class="d-flex">
-    <table class="table table table-hover">
+    <table class="table table table-hover" style="table-layout: fixed;">
         <thead>
         <tr>
             <th scope="col">Username</th>
@@ -16,7 +16,7 @@
             <th scope="col">Bonus</th>
             <th scope="col">Fine</th>
             <th scope="col">Audit Probability</th>
-            <th></th>
+            <th scope="col"></th>
         </tr>
         </thead>
         <tbody>
@@ -25,22 +25,22 @@
                 <form method="post">
                     {% csrf_token %}
                     <th>{{ key }}</th>
-                    <th>{{ value.existing_role }}</th>
-                    <th>{{ value.role }}</th>
+                    <td>{{ value.existing_role }}</td>
+                    <td>{{ value.role }}</td>
                     {% if value.is_worker %}
-                        <th>{{ value.salary }}</th>
-                        <th>{{ value.bonus }}</th>
-                        <th>{{ value.fine }}</th>
-                        <th>{{ value.audit_prob }}</th>
+                        <td>{{ value.salary }}</td>
+                        <td>{{ value.bonus }}</td>
+                        <td>{{ value.fine }}</td>
+                        <td>{{ value.audit_prob }}</td>
                     {% else %}
-                        <th></th>
-                        <th></th>
-                        <th></th>
-                        <th></th>
+                        <td></td>
+                        <td></td>
+                        <td></td>
+                        <td></td>
                     {% endif %}
-                    <th><button type="submit" id="id_change_role" class="btn btn-danger" name="{{ key }}">
+                    <td><button type="submit" id="id_change_role" class="btn btn-danger" name="{{ key }}">
                         Update
-                    </button></th>
+                    </button></td>
                 </form>
             </tr>
         {% endfor %}

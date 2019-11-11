@@ -11,13 +11,13 @@ class ChangeRolesForm(forms.Form):
 
         choices = [(tag.value, tag.value) for tag in UserRoles]
         self.is_worker = (usr.profile.role == UserRoles.WORKER.value) or (usr.profile.role == UserRoles.AUDITOR.value)
-        self.fields['existing_role'] = forms.CharField(initial=usr.profile.role,
-                                                       widget=forms.TextInput(attrs={'readonly':'readonly'}))
+        self.fields['existing_role'] = forms.CharField(initial=usr.profile.role, 
+                                                       widget=forms.TextInput(attrs={'readonly':'readonly','class':'input'}))
         self.fields['role'] = forms.ChoiceField(choices=choices, initial=usr.profile.role, required=False)
-        self.fields['salary'] = forms.FloatField(label='Salary', initial=usr.profile.salary, required=False)
-        self.fields['bonus'] = forms.FloatField(label='Bonus', initial=usr.profile.bonus, required=False)
-        self.fields['fine'] = forms.FloatField(label='Fine', initial=usr.profile.fine, required=False)
-        self.fields['audit_prob'] = forms.FloatField(label='Audit Probability', initial=usr.profile.audit_prob_user, required=False)
+        self.fields['salary'] = forms.FloatField(label='Salary', initial=usr.profile.salary, required=False, widget=forms.TextInput(attrs={'class':'input'}))
+        self.fields['bonus'] = forms.FloatField(label='Bonus', initial=usr.profile.bonus, required=False, widget=forms.TextInput(attrs={'class':'input'}))
+        self.fields['fine'] = forms.FloatField(label='Fine', initial=usr.profile.fine, required=False, widget=forms.TextInput(attrs={'class':'input'}))
+        self.fields['audit_prob'] = forms.FloatField(label='Audit Probability', initial=usr.profile.audit_prob_user, required=False, widget=forms.TextInput(attrs={'class':'input'}))
 
 
 class ChangeMentorStatus(forms.Form):
@@ -27,6 +27,17 @@ class ChangeMentorStatus(forms.Form):
 
         self.fields["mentor_status"] = forms.ChoiceField(choices=TRUE_OR_FALSE, initial=value)
 
+class AssignPools(forms.Form):
+    def __init__(self, *args, **kwargs):
+        value = kwargs.pop('value')
+        mentors = kwargs.pop('mentors')
+        
+        usr = User.objects.get(id=value)
+        super(AssignPools,self).__init__(*args, **kwargs)
+        self.fields['radio'] = forms.ChoiceField(choices=pool_choices,initial=usr.profile.worker_pool, required=False, widget=forms.RadioSelect(attrs={'class':'radio'}))
+        self.fields['mentors'] = forms.ChoiceField(choices=mentors, required=False, initial='Select')
+        self.fields['mentors'].initial = 'Select'
+        
 
 class AddMentor(forms.Form):
     def __init__(self, *args, **kwargs):
