@@ -29,23 +29,29 @@ def index(request):
         else:
             mentor_boolean = 'false';
         if(p.is_Mentor == True):
-            mentee_id = p.get_mentees();
-            #print(mentee_id);
-            for m in mentee_id:
-                user = User.objects.get(id=m);
-                tuj_list = TaskUserJunction.objects.filter(worker_id = user)
-                chat_participants.append(user.username);
-                
-                task_list = [];
-                for tuj in tuj_list:
-                    task_list.append((str(tuj),tuj.room_id));
-                mentee_task_list[user.username] = task_list;
+           try:
+               mentee_id = p.get_mentees();
+               for m in mentee_id:
+                   user = User.objects.get(id=m);
+                   tuj_list = TaskUserJunction.objects.filter(worker_id = user)
+                   chat_participants.append(user.username);
+                   
+                   task_list = [];
+                   for tuj in tuj_list:
+                       task_list.append((str(tuj),tuj.room_id));
+                   mentee_task_list[user.username] = task_list;
+           except:
+               mentee_task_list={}
         else:
-            mentor_id = p.get_mentors()[0];
-            user = User.objects.get(id=mentor_id);
-            chat_participants.append(user.username);
+           #Get Mentors list
+           try:
+               mentor_id = p.get_mentors()[0];
+               user = User.objects.get(id=mentor_id);
+               chat_participants.append(user.username);
+           except:
+               tuj_list=tuj_list
 
-    print(mentee_task_list)
+
             
     # Render that in the index template
     return render(request, "messages.html", {
