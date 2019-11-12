@@ -4,7 +4,7 @@ from .models import Room,Messages
 from tasks.models import ResearchTasks,TaskUserJunction
 from django.contrib.auth.models import User
 from users.models import Profile
-from django.http import HttpResponse
+from django.http import HttpResponse,JsonResponse
 
 
 @login_required
@@ -77,3 +77,22 @@ def save_message(request):
    
    
    return HttpResponse("")
+@login_required
+def message_thread(request):
+    import json
+    messages_list = [];
+    message_response = {};
+    worker_message_list = {};
+    message_thread_id = 1;
+    try:
+        user_message_thread = Messages.objects.all();
+        room_id = request.GET.get('room_id');
+        for thread in user_message_thread:
+            username = User.objects.get(id=thread.sender_id);
+            thread_id = str(thread.room_id);
+            if(thread_id == room_id):
+                worker_message_list[message_thread_id] = [str(username),thread.text];
+                message_thread_id+=1;
+    except:
+        worker_message_list = worker_message_list
+    return JsonResponse(worker_message_list,safe=False);

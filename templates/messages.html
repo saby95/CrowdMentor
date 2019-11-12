@@ -7,13 +7,11 @@
 {% load staticfiles %}
 <head>
     <meta charset="utf-8">
+    <script src="https://code.jquery.com/jquery-3.2.1.min.js"></script>
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.4.0/css/bootstrap.min.css">
-  <!--script src="{% static "js/jquery-1.12.2.min.js" %}" type="text/javascript"></script-->
-  <script src="https://code.jquery.com/jquery-3.2.1.min.js"></script>
   <script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.4.0/js/bootstrap.min.js"></script>
   <script src="https://cdnjs.cloudflare.com/ajax/libs/reconnecting-websocket/1.0.0/reconnecting-websocket.js" type="text/javascript"></script>
-  <!--script src="{% static "js/reconnecting-websocket.min.js" %}" type="text/javascript"></script-->
 
   
   
@@ -24,11 +22,6 @@
             // Correctly decide between ws:// and wss://
             var ws_scheme = window.location.protocol == "https:" ? "wss" : "ws";
             var ws_path = ws_scheme + '://' + window.location.host + "/messages/stream/";
-            //isMentor = false
-            /*if({{ isMentor }} == 'rue')
-                isMentor = true;
-            else
-                isMentor = false;*/
             isMentor = ({{ isMentor }});
             console.log("Connecting to " + ws_path);
             $("#participants").css("display","none");
@@ -54,6 +47,40 @@
                             "<form><input><button>Send</button></form>" +
                             "</div>"
                     );
+                    //THREAD!
+                    $.ajax(
+                        {
+                            type:"GET",
+                            url: "/messages/message_thread",
+                            data:{
+                                     room_id: data.join
+                            },
+                            success: function( data ) 
+                            {
+                                workers_messages_dict = data;
+                                h3Element = document.createElement('h3');
+                                h3Element.innerHTML = 'Chat Threads';
+                                divElem = document.getElementById('workers_message_threads');
+                                $("#workers_message_threads").empty();
+                                divElem.append(h3Element);
+                                console.log("sajf")
+
+                                for(message_thread_id in workers_messages_dict){
+                                    
+                                    messages_list = workers_messages_dict[message_thread_id];
+                                        spanElement = document.createElement('span');
+                                        spanElement.innerHTML = messages_list[0] + " : " + messages_list[1];
+                                        brElem = document.createElement('br');
+                                        divElem.append(brElem);
+                                        divElem.append(spanElement);
+
+                                }
+                            }
+                         })
+
+
+
+
                     // Hook up send button to send a message
                     roomdiv.find("form").on("submit", function () {
                         socket.send(JSON.stringify({
@@ -61,22 +88,23 @@
                             "room": data.join,
                             "message": roomdiv.find("input").val()
                         }));
-
+                        
                         current_message = roomdiv.find("input").val();
-                        $.ajax(
-                       {
-                           type:"GET",
-                           url: "/messages/save_message",
-                           data:{
-                                    message: current_message,
-                                    room_id: data.join
-                           },
-                           success: function( data )
-                           {
-                               console.log("message sent to view");
-                           }
-                        })
-                        roomdiv.find("input").val("");
+                         $.ajax(
+                        {
+                            type:"GET",
+                            url: "/messages/save_message",
+                            data:{
+                                     message: current_message,
+                                     room_id: data.join
+                            },
+                            success: function( data ) 
+                            {
+                                console.log("message sent to view");
+                            }
+                         })
+
+                         roomdiv.find("input").val("");
                         return false;
                     });
                     $(".active").removeClass("active")
@@ -98,7 +126,7 @@
                         case 0:
                             // Message
                             ok_msg = "<div class='message'>" +
-                                    "<span class='username'>" + data.username + "</span>" +
+                                    "<b><span class='username'>" + data.username + ": </span></b>" +
                                     "<span class='body'>" + data.message + "</span>" +
                                     "</div>";
                             break;
@@ -179,7 +207,8 @@
          {% endfor %}
     </ul>
      {% endfor %}    
-   
+    <!--THREAD DISPLAY DIV-->
+  <div id="workers_message_threads"></div>
 </ul>
 <br/><br/>
 <div id="chats">   
@@ -188,11 +217,14 @@
   {% else %}
   <ul class="nav nav-pills">
     {% for tuj in tuj_list %}
-            <li class="room-link" id="{{ tuj.room_id }}" data-room-id="{{ tuj.room_id}}"><a>{{ tuj }}</a></li>
+            <li class="room-link" id="{{tuj.room_id}}" data-room-id="{{ tuj.room_id}}"><a>{{ tuj }}</a></li>
         {% empty %}
             <p class="empty">You have no tasks claimed</p>
         {% endfor %}
   </ul>
+
+  <!--THREAD DISPLAY DIV-->
+  <div id="workers_message_threads"></div>
    <div id="participants">
             <br/><br/>
         {% for participant in chat_participants %}
@@ -202,6 +234,8 @@
     <div id="chats">   
     </div>
 {% endif %}
+<div>
+</div>
 {% endblock %}
 
 {% block extra_body %}
