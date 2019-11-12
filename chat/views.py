@@ -1,9 +1,10 @@
 from django.shortcuts import render
 from django.contrib.auth.decorators import login_required
-from .models import Room
+from .models import Room,Messages
 from tasks.models import ResearchTasks,TaskUserJunction
 from django.contrib.auth.models import User
 from users.models import Profile
+from django.http import HttpResponse
 
 
 @login_required
@@ -60,3 +61,19 @@ def index(request):
         "isMentor" : mentor_boolean,
         "mentee_task_list" : mentee_task_list
     })
+
+@login_required
+def save_message(request):
+   import datetime
+   current_message = (request.GET.get('message'));
+   current_sender_id= request.user.profile.user_id;
+   current_datetime = datetime.datetime.now();
+   current_room_id = 0
+   room_objects= Room.objects.filter(id= request.GET.get('room_id'))
+
+   for room in room_objects:
+       messages = Messages(text=current_message, datetime=current_datetime, sender_id = current_sender_id,room_id=room.id)
+       messages.save()
+   
+   
+   return HttpResponse("")
