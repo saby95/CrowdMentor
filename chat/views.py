@@ -80,7 +80,6 @@ def save_message(request):
 @login_required
 def message_thread(request):
     import json
-    print("sad")
     messages_list = [];
     message_response = {};
     worker_message_list = {};

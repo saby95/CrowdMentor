@@ -20,6 +20,7 @@
     var mentee_tasks_div="";
     workers_messages_dict_all = {}
     function truncate_messages(workers_messages_dict,truncate){   
+        workers_messages_dict_all = {}
         h3Element = document.createElement('h4');
         messages_length = Object.keys(workers_messages_dict).length;
         truncate_length = messages_length-5; 
@@ -27,7 +28,6 @@
         divElem = document.getElementById('workers_message_threads');
         $("#workers_message_threads").empty();
         divElem.append(h3Element);
-
 
         if(truncate==true){
         keys = Object.keys(workers_messages_dict,truncate);
@@ -49,6 +49,19 @@
              brElem = document.createElement('br');
              divElem.append(brElem);
              divElem.append(spanElement);
+     }
+     if(truncate == true){
+        anchorElem = document.createElement('a');
+        anchorElem.innerHTML = 'Show All Messages ...';
+        anchorElem.href="#";
+        anchorElem.id= "showallMessages";
+        brElem = document.createElement('br')
+        divElem.append(brElem)
+        divElem.append(anchorElem);
+        document.getElementById("showallMessages").addEventListener("click", function(){
+            truncate_messages(workers_messages_dict_all,false);
+
+        });
      }
      if(truncate == false){
         anchorElem = document.createElement('a');
@@ -109,7 +122,7 @@
                                 
                                 brElem = document.createElement('br');
                                 divElem.append(brElem);
-                                if(truncate_length>0){
+                                /*if(truncate_length>0){
                                     anchorElem = document.createElement('a');
                                     anchorElem.innerHTML = 'Show All Messages ...';
                                     anchorElem.href="#";
@@ -119,7 +132,7 @@
                                         truncate_messages(workers_messages_dict_all,false);
 
                                     });
-                                }
+                                }*/
                             }
                          })
 
