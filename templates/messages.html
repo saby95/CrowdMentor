@@ -18,6 +18,53 @@
   {% block extra_head %} {% endblock %}
 <script>
     var mentee_tasks_div="";
+    workers_messages_dict_all = {}
+    function truncate_messages(workers_messages_dict,truncate){   
+        h3Element = document.createElement('h4');
+        messages_length = Object.keys(workers_messages_dict).length;
+        truncate_length = messages_length-5; 
+        h3Element.innerHTML = 'Chat Threads ('+Object.keys(workers_messages_dict).length+')';
+        divElem = document.getElementById('workers_message_threads');
+        $("#workers_message_threads").empty();
+        divElem.append(h3Element);
+
+
+        if(truncate==true){
+        keys = Object.keys(workers_messages_dict,truncate);
+        truncated_keys = [];
+        for(var i=0;i<truncate_length;i++){
+            workers_messages_dict_all[keys[i]] = workers_messages_dict[keys[i]];
+         truncated_keys.push(keys.shift());
+         }
+          for(i=0;i<truncated_keys.length;i++){
+            delete workers_messages_dict[truncated_keys[i]];
+         }
+     }
+
+     for(message_thread_id in workers_messages_dict){
+         workers_messages_dict_all[message_thread_id] = workers_messages_dict[message_thread_id]
+         messages_list = workers_messages_dict[message_thread_id];
+             spanElement = document.createElement('span');
+             spanElement.innerHTML = messages_list[0] + " : " + messages_list[1];
+             brElem = document.createElement('br');
+             divElem.append(brElem);
+             divElem.append(spanElement);
+     }
+     if(truncate == false){
+        anchorElem = document.createElement('a');
+        anchorElem.innerHTML = 'Show Less Messages ...';
+        anchorElem.href="#";
+        anchorElem.id= "showlessMessages";
+        brElem = document.createElement('br')
+        divElem.append(brElem)
+        divElem.append(anchorElem);
+        document.getElementById("showlessMessages").addEventListener("click", function(){
+            truncate_messages(workers_messages_dict_all,true);
+
+        });
+     }
+    
+    }
         $(function () {
             // Correctly decide between ws:// and wss://
             var ws_scheme = window.location.protocol == "https:" ? "wss" : "ws";
@@ -58,28 +105,23 @@
                             success: function( data ) 
                             {
                                 workers_messages_dict = data;
-                                h3Element = document.createElement('h3');
-                                h3Element.innerHTML = 'Chat Threads';
-                                divElem = document.getElementById('workers_message_threads');
-                                $("#workers_message_threads").empty();
-                                divElem.append(h3Element);
-                                console.log("sajf")
+                                truncate_messages(workers_messages_dict,true);
+                                
+                                brElem = document.createElement('br');
+                                divElem.append(brElem);
+                                if(truncate_length>0){
+                                    anchorElem = document.createElement('a');
+                                    anchorElem.innerHTML = 'Show All Messages ...';
+                                    anchorElem.href="#";
+                                    anchorElem.id= "showAllMessages";
+                                    divElem.append(anchorElem);
+                                    document.getElementById("showAllMessages").addEventListener("click", function(){
+                                        truncate_messages(workers_messages_dict_all,false);
 
-                                for(message_thread_id in workers_messages_dict){
-                                    
-                                    messages_list = workers_messages_dict[message_thread_id];
-                                        spanElement = document.createElement('span');
-                                        spanElement.innerHTML = messages_list[0] + " : " + messages_list[1];
-                                        brElem = document.createElement('br');
-                                        divElem.append(brElem);
-                                        divElem.append(spanElement);
-
+                                    });
                                 }
                             }
                          })
-
-
-
 
                     // Hook up send button to send a message
                     roomdiv.find("form").on("submit", function () {
@@ -198,17 +240,25 @@
   <div id="mentee_tasks">
 <ul class="nav nav-pills">
    {% for worker,tasklist in mentee_task_list.items %} 
+   <div id="wrapper_child">
+   <div id="wrapper" style="float: left;">
+   <div style="float:left;margin-left: 15px">
     <li><b>{{worker}}</b></li>
     <span><b></b></span>
-    <br/>
+</div>
+<br/>
+    <div style="float:left;clear:left;">
     <ul class="nav nav-pills">
          {% for task in tasklist%} 
          <li class="room-link" id="{{ task.1}}" data-room-id="{{ task.1}}"><a>{{ task.0 }}</a></li>
          {% endfor %}
     </ul>
+</div>
+</div>
      {% endfor %}    
     <!--THREAD DISPLAY DIV-->
-  <div id="workers_message_threads"></div>
+  <div id="workers_message_threads" style="float:left;clear:left;"></div>
+</div>
 </ul>
 <br/><br/>
 <div id="chats">   
