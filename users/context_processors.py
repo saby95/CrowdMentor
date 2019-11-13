@@ -9,7 +9,10 @@ def view(request):
     if request.user.is_authenticated:
         user = User.objects.get(username=request.user.username)
         user_id = user.id
-        profile = Profile.objects.get(user_id=user_id).role
+        profile = user.profile.get_roles()
+        # Session value will always be populated from the / page of each of the user roles
+        profile = request.session['role']
+        
         #broadcast_messages_count = BroadcastMessages.objects.filter(group_role=profile, claim=False).count()
         #broadcast_count = 'Broadcast(' + str(broadcast_messages_count) + ')'
         if profile == UserRoles.TASK_UPDATER.value:
@@ -19,7 +22,7 @@ def view(request):
 
         if profile == UserRoles.ADMIN.value:
             dict_functs['/change_roles'] = 'Update Worker'
-            dict_functs['/mentor_status'] = 'Mentor Status'
+            # dict_functs['/mentor_status'] = 'Mentor Status' #Not needed as it is covered in the Update Worker page
             dict_functs['/pool_status'] = 'Assign pools'
             dict_functs['/messages/'] = 'Messages'
             dict_functs['/help/'] = 'Help'
@@ -35,13 +38,24 @@ def view(request):
             dict_functs['/tasks/audits/'] = 'Claimed Audits'
             dict_functs['/help/'] = 'Help'
 
-        # if profile == UserRoles.MENTOR.value:
-        #     dict_functs['/messages/'] = 'Messages'
-        #     dict_functs['/tasks/task_status/'+str(user_id)+'/'] = 'Task Status'
-        #     dict_functs['/help/'] = 'Help'
+        if profile == UserRoles.MENTOR.value:
+            dict_functs['/messages/'] = 'Messages'
+            dict_functs['/tasks/task_status/'+str(user_id)+'/'] = 'Task Status'
+            dict_functs['/help/'] = 'Help'
+        # New dictionary to store the updated urls (with the roles)
+        dictionary = {}    
+        if('role' in request.session): 
+            for x,y in dict_functs.items():
+                x = x + '?role='+ request.session['role']
+                dictionary[x] = y
+
+        else:
+            dictionary = dict_functs
+  
     else:
+        dictionary = {}
         dict_functs['/accounts/login'] = 'Login'
         dict_functs['/signup'] = 'Signup'
-
-    return {"dict_functs" : dict_functs}
+        dictionary = dict_functs
+    return {"dict_functs" : dictionary}
 

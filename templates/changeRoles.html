@@ -16,7 +16,8 @@
             <th scope="col">Bonus</th>
             <th scope="col">Fine</th>
             <th scope="col">Audit Probability</th>
-            <th scope="col"></th>
+        
+            <th></th>
         </tr>
         </thead>
         <tbody>
@@ -24,20 +25,14 @@
             <tr>
                 <form method="post">
                     {% csrf_token %}
-                    <th>{{ key }}</th>
+                    <td>{{ key }}</td>
                     <td>{{ value.existing_role }}</td>
                     <td>{{ value.role }}</td>
-                    {% if value.is_worker %}
-                        <td>{{ value.salary }}</td>
-                        <td>{{ value.bonus }}</td>
-                        <td>{{ value.fine }}</td>
-                        <td>{{ value.audit_prob }}</td>
-                    {% else %}
-                        <td></td>
-                        <td></td>
-                        <td></td>
-                        <td></td>
-                    {% endif %}
+                    <td>{{ value.salary }}</td>
+                    <td>{{ value.bonus }}</td>
+                    <td>{{ value.fine }}</td>
+                    <td>{{ value.audit_prob }}</td>
+                    
                     <td><button type="submit" id="id_change_role" class="btn btn-danger" name="{{ key }}">
                         Update
                     </button></td>

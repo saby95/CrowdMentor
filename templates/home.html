@@ -9,11 +9,11 @@
     <!--<h3>Total Salary: ${{user.profile.total_salary}}</h3><br>-->
 <!--</div>-->
 
-{% if user.profile.role == 'admin'%}
+{% if request.session.role == 'admin'%}
 <h5>List of all workers : </h5>
 {% endif %}
 
-{% if user.profile.role == 'mentor'%}
+{% if request.session.role == 'mentor'%}
 <h5>List of all mentees : </h5>
 {% endif %}
 
@@ -33,7 +33,9 @@
             Username: {{ value.username }}<br>
             First name : {{ value.fname }}<br>
             Last name : {{ value.lname }}<br>
+            {%for role in value.get_roles%}
             Role : {{value.role}}<br>
+            {%endfor%}
             Email : {{ value.email }}<br>
             Birthday : {{ value.bdate }}
             <hr class="my-4">

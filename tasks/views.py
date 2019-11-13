@@ -26,8 +26,7 @@ def index(request):
 @login_required
 def add_tasks(request):
     user = User.objects.get(username=request.user.username)
-    profile = user.profile.role
-    if profile != 'task_updater':
+    if not('task_updater' == request.session['role']):
         messages.warning(request, 'Permission Denied!! You do not have permission to access this page')
         return HttpResponseRedirect('/')
     if request.method == 'POST':
@@ -46,7 +45,8 @@ def add_tasks(request):
 @login_required
 def detail(request, task_id):
     user = User.objects.get(username=request.user.username)
-    claim_permission = user.profile.role == 'worker' or user.profile.role == 'virtual_worker'
+    # claim_permission = user.profile.role == 'worker' or user.profile.role == 'virtual_worker'
+    claim_permission = 'worker' == request.session['role']
     try:
         task = ResearchTasks.objects.get(pk=task_id)
     except ResearchTasks.DoesNotExist:
@@ -74,7 +74,7 @@ def claim(request, task_id):
     tuj.task_id = task
     room = Room(title=tuj, staff_only=False)
     room.save()
-    tuj.room_id = room.id;
+    tuj.room_id = room.id
     tuj.save()
     task.save()
     messages.info(request, 'New Task Claimed')
@@ -84,8 +84,8 @@ def claim(request, task_id):
 @login_required
 def claimed_tasks(request):
     user = User.objects.get(username=request.user.username)
-    profile = user.profile.role
-    if profile != 'worker' and profile != 'virtual_worker':
+    
+    if not ('worker' == request.session['role']):
         messages.warning(request, 'Permission Denied!! You do not have permission to access this page')
         return HttpResponseRedirect('/')
     tuj_list =TaskUserJunction.objects.filter(worker_id = user)
@@ -140,8 +140,8 @@ def answer(request, task_id):
 @login_required
 def open_audits(request):
     user = User.objects.get(username=request.user.username)
-    profile = user.profile.role
-    if profile != 'auditor':
+
+    if not('auditor' == request.session['role']):
         messages.warning(request, 'Permission Denied!! You do not have permission to access this page')
         return HttpResponseRedirect('/')
     audit_list = Audit.objects.filter(auditor_id=None)
@@ -153,8 +153,8 @@ def open_audits(request):
 @login_required
 def detail_audit(request, task_id):
     user = User.objects.get(username=request.user.username)
-    profile = user.profile.role
-    if profile != 'auditor':
+
+    if request.session['role'] != 'auditor':
         messages.warning(request, 'Permission Denied!! You do not have permission to access this page')
         return HttpResponseRedirect('/')
     try:
@@ -168,8 +168,8 @@ def detail_audit(request, task_id):
 @login_required
 def claim_audit(request, task_id):
     user = User.objects.get(username=request.user.username)
-    profile = user.profile.role
-    if profile != 'auditor':
+
+    if not('auditor' == request.session['role']):
         messages.warning(request, 'Permission Denied!! You do not have permission to access this page')
         return HttpResponseRedirect('/')
     try:
@@ -186,8 +186,8 @@ def claim_audit(request, task_id):
 @login_required
 def audit_tasks(request):
     user = User.objects.get(username=request.user.username)
-    profile = user.profile.role
-    if profile != 'auditor':
+
+    if not('auditor' == request.session['role']):
         messages.warning(request, 'Permission Denied!! You do not have permission to access this page')
         return HttpResponseRedirect('/')
     audit_list =Audit.objects.filter(auditor_id = user)
@@ -199,8 +199,8 @@ def audit_tasks(request):
 @login_required
 def submit_audit(request, task_id):
     user = User.objects.get(username=request.user.username)
-    profile = user.profile.role
-    if profile != 'auditor':
+    
+    if not('auditor' == request.session['role']):
         messages.warning(request, 'Permission Denied!! You do not have permission to access this page')
         return HttpResponseRedirect('/')
     task = ResearchTasks.objects.get(pk=task_id)
@@ -246,8 +246,8 @@ def submit_audit(request, task_id):
 @login_required
 def all_task_status(request):
     user = User.objects.get(username=request.user.username)
-    profile = user.profile.role
-    if profile != 'admin':
+  
+    if not('admin' == request.session['role']):
         messages.warning(request, 'Permission Denied!! You do not have permission to access this page')
         return HttpResponseRedirect('/')
 
@@ -262,21 +262,21 @@ def all_task_status(request):
 @login_required
 def task_status(request, user_id):
     user = User.objects.get(username=request.user.username)
-    profile = user.profile.role
-    if profile != 'mentor' and profile != 'admin':
+    
+    if not('mentor' == request.session['role'] or 'admin' == request.session['role']):
         messages.warning(request, 'Permission Denied!! You do not have permission to access this page')
         return HttpResponseRedirect('/')
     admin_permission = False
-    if profile == 'admin':
+    if 'admin' == request.session['role']:
         admin_permission = True
 
-    participants = Profile.objects.filter(mentor_id=user_id)
-    #
+    participants = user.profile.get_mentees()
+    
     user_names = []
     for usr in participants:
-        user = User.objects.get(id=usr.user_id)
-
-        tasks_claimed = TaskUserJunction.objects.filter(worker_id_id=usr.user_id)
+        user = User.objects.get(id=usr)
+        
+        tasks_claimed = TaskUserJunction.objects.filter(worker_id_id=user.id)
         for task in tasks_claimed:
             task_summary = ResearchTasks.objects.get(id=task.task_id_id).task_summary
             if_audit = 1
@@ -302,8 +302,8 @@ def task_status(request, user_id):
 @login_required
 def view_task(request, user_id, task_id):
     user = User.objects.get(username=request.user.username)
-    profile = user.profile.role
-    if profile != 'mentor' and profile != 'admin':
+ 
+    if not('mentor' == request.session['role'] or 'admin' == request.session['role']):
         messages.warning(request, 'Permission Denied!! You do not have permission to access this page')
         return HttpResponseRedirect('/')
 

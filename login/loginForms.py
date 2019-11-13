@@ -13,7 +13,7 @@ class SignUpForm(UserCreationForm):
         (UserRoles.TASK_UPDATER.value, "Task Updater"),
         (UserRoles.AUDITOR.value, "Auditor")
     ]
-    role = forms.ChoiceField(choices=CHOICES)
+
 
     class Meta:
         model = User

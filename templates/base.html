@@ -38,7 +38,7 @@
     <div class="navbar-collapse collapse w-100 order-1 order-md-0 dual-collapse2">
         <ul class="navbar-nav mr-auto">
           <li class="nav-item">
-                <a class="nav-link" href="/"><i class="fa fa-home" aria-hidden="true"></i>  Home</a>
+                <a class="nav-link" href="/?role={{request.session.role}}"><i class="fa fa-home" aria-hidden="true"></i>  Home</a>
             </li>
           {% for key, value in dict_functs.items %}
             <li class="nav-item">
@@ -68,7 +68,9 @@
             </a>
             <div class="dropdown-menu" aria-labelledby="navbarDropdownMenuLink">
               <a class="dropdown-item" href="#">{{ user.get_full_name }}</a>
-              <a class="dropdown-item" href="#">Role: {{user.profile.role}}</a>
+              {% for role in user.profile.get_roles %}
+                <a class="dropdown-item" href="/?role={{role}}">Role: {{role}}</a>
+              {% endfor %}
             </div>
             </li>
             <li class="nav-item">

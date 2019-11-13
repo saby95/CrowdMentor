@@ -9,16 +9,44 @@ class ChangeRolesForm(forms.Form):
         usr = User.objects.get(id=value)
         super(ChangeRolesForm, self).__init__(*args, **kwargs)
 
-        choices = [(tag.value, tag.value) for tag in UserRoles]
-        self.is_worker = (usr.profile.role == UserRoles.WORKER.value) or (usr.profile.role == UserRoles.AUDITOR.value)
-        self.fields['existing_role'] = forms.CharField(initial=usr.profile.role, 
-                                                       widget=forms.TextInput(attrs={'readonly':'readonly','class':'input'}))
-        self.fields['role'] = forms.ChoiceField(choices=choices, initial=usr.profile.role, required=False)
-        self.fields['salary'] = forms.FloatField(label='Salary', initial=usr.profile.salary, required=False, widget=forms.TextInput(attrs={'class':'input'}))
+        choices = []
+        for tag in UserRoles:
+            if tag.value is not 'admin':
+                choices.append((tag.value,tag.value))
+        # choices = [(tag.value, tag.value) for tag in UserRoles]
+        # worker alone -> mentor, TU, AU
+        # mentor + worker -> worker
+        # TU -> AU
+        # AU -> TU
+        # TU + AU -> TU, AU
+        # self.show_compensation = (UserRoles.WORKER.value or UserRoles.AUDITOR.value) in  usr.profile.get_roles()
+        profile_roles = ""
+        for element in usr.profile.get_roles():
+            profile_roles += str(element)+","
+        profile_roles = profile_roles[:-1]    
+
+        current_roles = usr.profile.get_roles()
+
+        self.fields['existing_role'] = forms.CharField(initial=profile_roles, widget=forms.TextInput(attrs={'readonly':'readonly','class':'input'}))
+        if(len(current_roles) == 1 and current_roles[0] == 'worker'):
+            choices = [('mentor','mentor'),('task_updater','task_updater'),('auditor','auditor')]
+        elif(len(current_roles) == 2 and 'mentor' in current_roles):
+            choices = [('worker','worker')]
+        elif(len(current_roles) == 1 and current_roles[0] == 'task_updater'):
+            choices = [('auditor','auditor')]
+        elif(len(current_roles) == 1 and current_roles[0] == 'auditor'):
+            choices = [('task_updater','task_updater')]
+        else:
+            choices = [('task_updater','task_updater'),('auditor','auditor')]
+
+        choices.insert(0,('Select','Select'))
+
+        self.fields['role'] = forms.ChoiceField(choices=choices, required=False)      
+        self.fields['salary'] = forms.FloatField(label='Salary', initial=usr.profile.salary, required=True, widget=forms.TextInput(attrs={'class':'input'}))
         self.fields['bonus'] = forms.FloatField(label='Bonus', initial=usr.profile.bonus, required=False, widget=forms.TextInput(attrs={'class':'input'}))
         self.fields['fine'] = forms.FloatField(label='Fine', initial=usr.profile.fine, required=False, widget=forms.TextInput(attrs={'class':'input'}))
         self.fields['audit_prob'] = forms.FloatField(label='Audit Probability', initial=usr.profile.audit_prob_user, required=False, widget=forms.TextInput(attrs={'class':'input'}))
-
+        
 
 class ChangeMentorStatus(forms.Form):
     def __init__(self, *args, **kwargs):

@@ -19,6 +19,7 @@ class UserRoles(Enum):
     TASK_UPDATER = 'task_updater'
     AUDITOR = 'auditor'
     WORKER = 'worker'
+    MENTOR = 'mentor'
 
 
 class Profile(models.Model):
@@ -27,8 +28,9 @@ class Profile(models.Model):
 
     user = models.OneToOneField(User, on_delete=models.CASCADE)
     Birth_date = models.DateField(null=True, blank=True)
-    role = models.CharField(max_length=15, choices=[(tag.value, tag.value) for tag in UserRoles],
-                            default=UserRoles.WORKER.value)
+    # role = models.CharField(max_length=15, choices=[(tag.value, tag.value) for tag in UserRoles],
+    #                         default=UserRoles.WORKER.value)
+    role = models.CharField(max_length=10000, default='[]')
     performance = models.DecimalField(max_digits=5, decimal_places=2, default=Decimal(0.00))
     salary = models.DecimalField(max_digits=10, decimal_places=2, default=Decimal(0.05))
     bonus = models.DecimalField(max_digits=10, decimal_places=2, default=Decimal(0.03))
@@ -65,6 +67,13 @@ class Profile(models.Model):
     def get_mentees(self):
         return json.loads(self.mentees)
 
+    def set_roles(self, roles):
+        self.role = json.dumps(roles)
+    
+    def get_roles(self):
+        return json.loads(self.role)
+
+
 
 class Mentor(models.Model):
     class Meta:
@@ -78,12 +87,17 @@ class Mentor(models.Model):
 
 @receiver(post_save, sender=User)
 def update_user_profile(sender, instance, created, **kwargs):
+    
     if created:
         Profile.objects.create(user=instance)
-    instance.profile.save()
-
-    if instance.username == 'admin':
-        instance.profile.role = UserRoles.ADMIN.value
+        # make the user admin if he already has admin privilage
+        if(instance.is_superuser): 
+            instance.profile.set_roles([UserRoles.ADMIN.value])
+        else:
+            instance.profile.set_roles([UserRoles.WORKER.value])
         instance.profile.save()
+
+  
+
 
 

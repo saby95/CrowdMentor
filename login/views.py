@@ -2,6 +2,7 @@ from django.shortcuts import render,redirect
 from django.contrib.auth import login, authenticate,logout
 from users.models import UserRoles
 from django.shortcuts import HttpResponseRedirect
+from django.contrib.auth import views as auth_views
 
 from .loginForms import SignUpForm
 
@@ -29,7 +30,5 @@ def signup(request):
 def logoutView(request):
    logout(request)
    return HttpResponseRedirect('/')
-
-
 
 

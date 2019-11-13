@@ -16,7 +16,11 @@ def userDetails(user_id):
     dict_profile['lname'] = user.last_name
     dict_profile['username'] = user.username
     dict_profile['email'] = user.email
-    dict_profile['role'] = user.profile.role
+    profile_roles = ""
+    for element in user.profile.get_roles():
+        profile_roles += str(element)+","
+       
+    dict_profile['role'] = profile_roles[:-1]
     dict_profile['bdate'] = user.profile.Birth_date
     dict_profile['salary'] = user.profile.salary
     dict_profile['bonus'] = user.profile.bonus
@@ -43,10 +47,8 @@ def pool_status(request):
         if(request.POST.get('mentors') == 'Select'):
             messages.warning(request, 'Please add a valid mentor!')
             return HttpResponseRedirect('/pool_status')
-        print(type(usr.id))
-        print(type(request.POST.get('mentors')))
+        
         if(str(usr.id) == request.POST.get('mentors')):
-            print("cAME HERE")
             messages.warning(request, 'Cannot assign the worker as a mentor to himself!')
             return HttpResponseRedirect('/pool_status')
 
@@ -54,27 +56,33 @@ def pool_status(request):
             messages.warning(request, 'Mentor already added!')
             return HttpResponseRedirect('/pool_status')
         
+        current_selected_mentor_id = request.POST.get('mentors')
+        current_mentor_user = User.objects.get(id=current_selected_mentor_id)
 
         if(request.POST.get('radio') == 'A'):
-            usr.profile.set_mentors([request.POST.get('mentors')])
+            usr.profile.set_mentors([int(request.POST.get('mentors'))])
         else:
             original_mentors = usr.profile.get_mentors()
             if(usr.profile.worker_pool != request.POST.get('radio')):
                 original_mentors = []
             
-            original_mentors.append(request.POST.get('mentors'))   
+            original_mentors.append(int(request.POST.get('mentors')))  
             usr.profile.set_mentors(original_mentors)
-
+        
+        current_mentees = current_mentor_user.profile.get_mentees()
+        if not(usr.id in current_mentees):
+            current_mentees.append(usr.id)
+            current_mentor_user.profile.set_mentees(current_mentees)
+            current_mentor_user.profile.save()
+        
         usr.profile.worker_pool = request.POST.get('radio')
         usr.profile.save()
-        # set_pool = request.POST.get('pool')
-        # selected_pool = set_pool
-        # usr.profile.worker_pool = set_pool
-        # usr.profile.save()
 
     user_dict=dict()
     users = User.objects.all()
-    mentors = Mentor.objects.all()
+
+    mentors = Profile.objects.filter(is_Mentor=True)
+    
     mentors_list = []
     mentor_form = [('Select','Select')]
 
@@ -82,68 +90,121 @@ def pool_status(request):
         # mentors_list.append(mentor.user.id)
         mentor_form.append((mentor.user.id,mentor.user.username))
     for usr in users:
-        if (usr.profile.role == UserRoles.ADMIN.value):
+        if not('worker' in usr.profile.get_roles()):
             continue
+     
+        if 'mentor' in usr.profile.get_roles():
+            mentor_form.remove((usr.id,usr.username))
         form = AssignPools(value=usr.id, mentors=mentor_form)
         current_mentors = []
         for mentor in usr.profile.get_mentors():
             current_mentors.append(User.objects.get(id=mentor))
 
         user_dict[usr.username] = {'form':form,'current_mentors':current_mentors}
-        # print(user_dict[usr.username]['current_mentors'])
-
+        
     return render(request, 'assign_workers_to_pool.html', {'user_dict':user_dict})
 
 @login_required
 def profileview(request):
-    user_id = User.objects.get(username=request.user.username).id
+    role = request.GET.get('role')
+    
+    user = User.objects.get(username=request.user.username)
+    user_id = user.id   
     dict_profile = {}
-    profile = Profile.objects.get(user_id=user_id).role
+    profile = user.profile.get_roles()
 
-    if profile == UserRoles.ADMIN.value:
+    if(request.GET.get('role') is None):
+        profile = profile[0]
+    else:
+        profile = request.GET.get('role')
+    request.session['role'] = profile
+ 
+    if request.session['role'] == UserRoles.ADMIN.value:
         emp_profile = {}
         profiles = Profile.objects.all()
         for worker in profiles:
-            if worker.role == UserRoles.WORKER.value:
+            worker_roles = worker.get_roles()
+            if UserRoles.WORKER.value in worker_roles:
                 profile_val = userDetails(worker.user_id)
                 dict_profile[profile_val['username']] = profile_val
 
-            elif worker.role != UserRoles.ADMIN.value:
+            elif UserRoles.ADMIN.value not in worker_roles:
                 work_val = userDetails(worker.user_id)
                 emp_profile[work_val['username']] = work_val
         return render(request, 'admin_view.html', {'dict_profile': dict_profile, 'emp_profile': emp_profile})
 
+    elif 'role' in request.session and request.session['role'] == 'mentor':
+        mentor_mentees = user.profile.get_mentees()
+        for mentee in mentor_mentees:
+            mentee_details = User.objects.get(id=mentee)
+            dict_profile[mentee_details.username] = userDetails(mentee)
+        return render(request, 'home.html', {'dict_profile':dict_profile})    
     else:
-        dict_profile[request.user.username] = userDetails(user_id)
+        dict_profile[user.username] = userDetails(user_id)
         return render(request, 'home.html', {'dict_profile': dict_profile})
 
 @login_required
 def change_roles(request):
     user = User.objects.get(username=request.user.username)
-    profile = user.profile.role
-    if profile != 'admin':
+    profile = user.profile.get_roles()
+    if not(len(profile) == 1 and profile[0] == 'admin'):
         messages.warning(request, 'Permission Denied!! You do not have permission to access this page')
         return HttpResponseRedirect('/')
 
     users = User.objects.all()
     if request.method == 'POST':
         posted_request = request.POST.dict()
-        print(posted_request)
+       
         all_keys = list(posted_request.keys())
         usrname = all_keys[len(all_keys)-1]
         usr = User.objects.get(username=usrname)
-        previous_role = usr.profile.role
-        usr.profile.role = posted_request['role']
-        if (previous_role == UserRoles.WORKER.value) or (previous_role == UserRoles.AUDITOR.value):
+        current_roles = usr.profile.get_roles()
+
+        #current worker; incoming mentor -> add mentor to the list
+        #current worker; incoming TU/AU -> change list directly
+        #current mentor + worker; worker -> change directly
+        #current TU; incoming AU -> add AU to the list
+        #current TU + AU; incoming TU -> change directly
+        #current TU + AU; incoming AU -> change directly
+        
+        if(len(current_roles) == 1 and current_roles[0] == 'worker'):
+            if(posted_request['role'] == 'mentor'):
+                current_roles.append(posted_request['role'])
+                usr.profile.is_Mentor = True
+            else:
+                current_roles = [posted_request['role']]
+        elif(len(current_roles) == 1):
+            current_roles.append(posted_request['role'])
+        else:
+            current_roles = [posted_request['role']] 
+            if(posted_request['role'] == 'worker'):
+                usr.profile.is_Mentor = False  
+
+        usr.profile.set_roles(current_roles)
+        
+        if(posted_request['salary'] is not None):
             usr.profile.salary = posted_request['salary']
+
+        if(posted_request['bonus'] is not None):
             usr.profile.bonus = posted_request['bonus']
-            usr.profile.fine = posted_request['fine']
-            usr.profile.audit_prob_user = posted_request['audit_prob']
+
+        if(posted_request['fine'] is not None):
+            usr.profile.fine = posted_request['fine']  
+
+        if(posted_request['audit_prob'] is not None):
+            usr.profile.audit_prob = posted_request['audit_prob']      
+
+        # if (previous_role == UserRoles.WORKER.value) or (previous_role == UserRoles.AUDITOR.value):
+        #     usr.profile.salary = posted_request['salary']
+        #     usr.profile.bonus = posted_request['bonus']
+        #     usr.profile.fine = posted_request['fine']
+        #     usr.profile.audit_prob_user = posted_request['audit_prob']
         usr.profile.save()
         usr.profile.save()
+
     user_dict=dict()
     for usr in users:
-        if (usr.profile.role == UserRoles.ADMIN.value):
+        if (UserRoles.ADMIN.value in usr.profile.get_roles()):
             continue
         user_dict[usr.username] = ChangeRolesForm(value=usr.id)
 
@@ -153,8 +214,8 @@ def change_roles(request):
 @login_required
 def mentor_status(request):
     user = User.objects.get(username=request.user.username)
-    profile = user.profile.role
-    if profile != 'admin':
+    profile = user.profile.get_roles()
+    if not(request.session['role'] == 'admin'):
         messages.warning(request, 'Permission Denied!! You do not have permission to access this page')
         return HttpResponseRedirect('/')
 
@@ -218,7 +279,7 @@ def mentor_status(request):
 def change_mentor(request, usrname):
     user = User.objects.get(username=request.user.username)
     profile = user.profile.role
-    if profile != 'admin':
+    if not(len(profile) == 1 and profile[0] == 'admin'):
         messages.warning(request, 'Permission Denied!! You do not have permission to access this page')
         return HttpResponseRedirect('/')
 
@@ -244,7 +305,6 @@ def change_mentor(request, usrname):
         set_pool = request.POST.get('pool')
         selected_pool = set_pool
         usr_mentors = usr.profile.get_mentors()
-        print(usr_mentors)
 
         if set_mentor == 'Select':
             submitted = True
@@ -266,7 +326,7 @@ def change_mentor(request, usrname):
                         cur_mentees.append(usr.id)
                         cur_mentor.profile.set_mentees(cur_mentees)
                         cur_mentor.profile.save()
-                        print(cur_mentor.profile.get_mentees())
+                        
                 else:
                     new_mentor = set_mentor
                     usr_mentors.append(new_mentor)
