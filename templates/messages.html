@@ -19,8 +19,11 @@
 <script>
     var mentee_tasks_div="";
     workers_messages_dict_all = {}
-    function truncate_messages(workers_messages_dict,truncate){   
+    function truncate_messages(workers_messages_dict,truncate){  
         workers_messages_dict_all = {}
+        for(message_thread_id in workers_messages_dict){
+         workers_messages_dict_all[message_thread_id] = workers_messages_dict[message_thread_id]
+        }
         h3Element = document.createElement('h4');
         messages_length = Object.keys(workers_messages_dict).length;
         truncate_length = messages_length-5; 
@@ -33,17 +36,17 @@
         keys = Object.keys(workers_messages_dict,truncate);
         truncated_keys = [];
         for(var i=0;i<truncate_length;i++){
-            workers_messages_dict_all[keys[i]] = workers_messages_dict[keys[i]];
+            //workers_messages_dict_all[keys[i]] = workers_messages_dict[keys[i]];
          truncated_keys.push(keys.shift());
          }
           for(i=0;i<truncated_keys.length;i++){
             delete workers_messages_dict[truncated_keys[i]];
          }
-     }
-
+        }
      for(message_thread_id in workers_messages_dict){
-         workers_messages_dict_all[message_thread_id] = workers_messages_dict[message_thread_id]
+         //workers_messages_dict_all[message_thread_id] = workers_messages_dict[message_thread_id]
          messages_list = workers_messages_dict[message_thread_id];
+         
              spanElement = document.createElement('span');
              spanElement.innerHTML = messages_list[0] + " : " + messages_list[1];
              brElem = document.createElement('br');
