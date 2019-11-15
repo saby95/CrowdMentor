@@ -52,7 +52,7 @@ def pool_status(request):
             messages.warning(request, 'Cannot assign the worker as a mentor to himself!')
             return HttpResponseRedirect('/pool_status')
 
-        if(str(usr.profile.worker_pool)==str(request.POST.get('radio')) and request.POST.get('mentors') in usr.profile.get_mentors() ):
+        if(str(usr.profile.worker_pool)==str(request.POST.get('radio')) and int(request.POST.get('mentors')) in usr.profile.get_mentors() ):
             messages.warning(request, 'Mentor already added!')
             return HttpResponseRedirect('/pool_status')
         
@@ -162,7 +162,7 @@ def change_roles(request):
         current_roles = usr.profile.get_roles()
         if posted_request['role'] == 'Select':
             messages.warning(request, 'Please select a valid role')
-        return HttpResponseRedirect('/change_roles/?role=admin')
+            return HttpResponseRedirect('/change_roles/?role=admin')
 
         #current worker; incoming mentor -> add mentor to the list
         #current worker; incoming TU/AU -> change list directly
