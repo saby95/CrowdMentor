@@ -5,3 +5,6 @@ include
 *.pyc
 .DS_Store*
 .Python
+LICENSE.txt
+Scripts/
+tcl/

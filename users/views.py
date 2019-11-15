@@ -52,7 +52,7 @@ def pool_status(request):
             messages.warning(request, 'Cannot assign the worker as a mentor to himself!')
             return HttpResponseRedirect('/pool_status')
 
-        if(usr.profile.worker_pool==request.POST.get('radio') and request.POST.get('mentors') in usr.profile.get_mentors() ):
+        if(str(usr.profile.worker_pool)==str(request.POST.get('radio')) and request.POST.get('mentors') in usr.profile.get_mentors() ):
             messages.warning(request, 'Mentor already added!')
             return HttpResponseRedirect('/pool_status')
         
@@ -92,7 +92,7 @@ def pool_status(request):
     for usr in users:
         if not('worker' in usr.profile.get_roles()):
             continue
-     
+        original_mentor_form = mentor_form.copy()
         if 'mentor' in usr.profile.get_roles():
             mentor_form.remove((usr.id,usr.username))
         form = AssignPools(value=usr.id, mentors=mentor_form)
@@ -101,6 +101,7 @@ def pool_status(request):
             current_mentors.append(User.objects.get(id=mentor))
 
         user_dict[usr.username] = {'form':form,'current_mentors':current_mentors}
+        mentor_form = original_mentor_form.copy()
         
     return render(request, 'assign_workers_to_pool.html', {'user_dict':user_dict})
 
@@ -159,6 +160,9 @@ def change_roles(request):
         usrname = all_keys[len(all_keys)-1]
         usr = User.objects.get(username=usrname)
         current_roles = usr.profile.get_roles()
+        if posted_request['role'] == 'Select':
+            messages.warning(request, 'Please select a valid role')
+        return HttpResponseRedirect('/change_roles/?role=admin')
 
         #current worker; incoming mentor -> add mentor to the list
         #current worker; incoming TU/AU -> change list directly
