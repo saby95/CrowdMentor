@@ -82,7 +82,8 @@
             // Correctly decide between ws:// and wss://
             var ws_scheme = window.location.protocol == "https:" ? "wss" : "ws";
             var ws_path = ws_scheme + '://' + window.location.host + "/messages/stream/";
-            isMentor = ({{ isMentor }});
+            //isMentor = ({{ isMentor }});
+            participantCount=({{ participant_count }});
             console.log("Connecting to " + ws_path);
             $("#participants").css("display","none");
             //$("#mentee-tasks").css("display","none");
@@ -122,17 +123,6 @@
                                 
                                 brElem = document.createElement('br');
                                 divElem.append(brElem);
-                                /*if(truncate_length>0){
-                                    anchorElem = document.createElement('a');
-                                    anchorElem.innerHTML = 'Show All Messages ...';
-                                    anchorElem.href="#";
-                                    anchorElem.id= "showAllMessages";
-                                    divElem.append(anchorElem);
-                                    document.getElementById("showAllMessages").addEventListener("click", function(){
-                                        truncate_messages(workers_messages_dict_all,false);
-
-                                    });
-                                }*/
                             }
                          })
 
@@ -180,10 +170,25 @@
                     switch (data.msg_type) {
                         case 0:
                             // Message
+                            if(participantCount==1){
                             ok_msg = "<div class='message'>" +
                                     "<b><span class='username'>" + data.username + ": </span></b>" +
                                     "<span class='body'>" + data.message + "</span>" +
                                     "</div>";
+                            }else{
+                                if('{{ curr }}'==data.username){
+                                    ok_msg = "<div class='message'>" +
+                                    "<b><span class='username'>" + data.username + ": </span></b>" +
+                                    "<span class='body'>" + data.message + "</span>" +
+                                    "</div>";
+                                }else{
+                                    ok_msg = "<div class='message'>" +
+                                    "<b><span class='username'>Sam:</span></b>" +
+                                    "<span class='body'>" + data.message + "</span>" +
+                                    "</div>"; 
+                                }
+                               
+                            }
                             break;
                         case 1:
                             // Warning / Advice messages
@@ -247,7 +252,7 @@
 </script>
     </head>
   <h3>Tasks</h3>
-  {% if isMentor == 'true'%}
+  {% if role == 'mentor'%}
 <br/>
   <span>Choose a Mentee Task Thread:</span>
   <div id="mentee_tasks">

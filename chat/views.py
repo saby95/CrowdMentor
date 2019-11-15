@@ -18,25 +18,28 @@ def index(request):
     rooms = Room.objects.order_by("title")
     roomslist = []
     chat_participants = []
+    participant_count=1
     user = User.objects.get(username=request.user.username)
+    print(user)
     tuj_list =TaskUserJunction.objects.filter(worker_id = user)
-    role = request.user.profile.role
+    #role = request.user.profile.role
+    role=request.session['role']
+    #print(role)
     participants = Profile.objects.filter(user_id=request.user.profile.user_id)
     mentee_task_list = {};
-    mentor_boolean  = 'false';
+    #mentor_boolean  = 'false';
     for p in participants:
-        if(p.is_Mentor):
-            mentor_boolean = 'true';
-        else:
-            mentor_boolean = 'false';
-        if(p.is_Mentor == True):
+        # if(p.is_Mentor):
+        #     mentor_boolean = 'true';
+        # else:
+        #     mentor_boolean = 'false';
+        if(role == 'mentor'):
            try:
                mentee_id = p.get_mentees();
                for m in mentee_id:
                    user = User.objects.get(id=m);
                    tuj_list = TaskUserJunction.objects.filter(worker_id = user)
                    chat_participants.append(user.username);
-                   
                    task_list = [];
                    for tuj in tuj_list:
                        task_list.append((str(tuj),tuj.room_id));
@@ -47,19 +50,24 @@ def index(request):
            #Get Mentors list
            try:
                mentor_id = p.get_mentors()[0];
-               user = User.objects.get(id=mentor_id);
-               chat_participants.append(user.username);
+               participant_count=len(p.get_mentors())
+               if(participant_count==1):
+                  user = User.objects.get(id=mentor_id);
+                  chat_participants.append(user.username);
+               else:
+                  chat_participants.append("Sam")
            except:
                tuj_list=tuj_list
-
-
             
     # Render that in the index template
     return render(request, "messages.html", {
         "tuj_list": tuj_list,
         "chat_participants" : chat_participants,
-        "isMentor" : mentor_boolean,
-        "mentee_task_list" : mentee_task_list
+      #  "isMentor" : mentor_boolean,
+        "participant_count" : participant_count,
+        "mentee_task_list" : mentee_task_list,
+        "role" : role,
+        "curr" : user
     })
 
 @login_required
@@ -84,6 +92,8 @@ def message_thread(request):
     message_response = {};
     worker_message_list = {};
     message_thread_id = 1;
+    role=request.session['role']
+    #print(role)
     try:
         user_message_thread = Messages.objects.all();
         room_id = request.GET.get('room_id');
@@ -93,6 +103,20 @@ def message_thread(request):
             if(thread_id == room_id):
                 worker_message_list[message_thread_id] = [str(username),thread.text];
                 message_thread_id+=1;
+        if(role =='worker'):
+            senders=list(worker_message_list.values())
+            uniquelist=set()
+            for person in senders:
+                uniquelist.add(person[0]) 
+            print(uniquelist)   
+            curr=str(User.objects.get(username=request.user.username))
+            uniquelist.remove(curr)
+            print(uniquelist)  
+            if(len(uniquelist)>1):
+                for l in worker_message_list:
+                    if(worker_message_list[l][0]!=curr):
+                        worker_message_list[l][0]='Sam'
     except:
         worker_message_list = worker_message_list
+
     return JsonResponse(worker_message_list,safe=False);
