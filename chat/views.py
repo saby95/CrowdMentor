@@ -20,13 +20,14 @@ def index(request):
     chat_participants = []
     participant_count=1
     user = User.objects.get(username=request.user.username)
-    print(user)
+    #print(user)
     tuj_list =TaskUserJunction.objects.filter(worker_id = user)
     #role = request.user.profile.role
     role=request.session['role']
     #print(role)
     participants = Profile.objects.filter(user_id=request.user.profile.user_id)
     mentee_task_list = {};
+    workername = None
     #mentor_boolean  = 'false';
     for p in participants:
         # if(p.is_Mentor):
@@ -38,6 +39,7 @@ def index(request):
                mentee_id = p.get_mentees();
                for m in mentee_id:
                    user = User.objects.get(id=m);
+                   workername=user.username
                    tuj_list = TaskUserJunction.objects.filter(worker_id = user)
                    chat_participants.append(user.username);
                    task_list = [];
@@ -49,6 +51,7 @@ def index(request):
         else:
            #Get Mentors list
            try:
+               workername=p.user
                mentor_id = p.get_mentors()[0];
                participant_count=len(p.get_mentors())
                if(participant_count==1):
@@ -63,9 +66,9 @@ def index(request):
     return render(request, "messages.html", {
         "tuj_list": tuj_list,
         "chat_participants" : chat_participants,
-      #  "isMentor" : mentor_boolean,
         "participant_count" : participant_count,
         "mentee_task_list" : mentee_task_list,
+        "workername" : workername,
         "role" : role,
         "curr" : user
     })
@@ -93,7 +96,6 @@ def message_thread(request):
     worker_message_list = {};
     message_thread_id = 1;
     role=request.session['role']
-    #print(role)
     try:
         user_message_thread = Messages.objects.all();
         room_id = request.GET.get('room_id');
@@ -107,11 +109,9 @@ def message_thread(request):
             senders=list(worker_message_list.values())
             uniquelist=set()
             for person in senders:
-                uniquelist.add(person[0]) 
-            print(uniquelist)   
+                uniquelist.add(person[0])   
             curr=str(User.objects.get(username=request.user.username))
-            uniquelist.remove(curr)
-            print(uniquelist)  
+            uniquelist.remove(curr) 
             if(len(uniquelist)>1):
                 for l in worker_message_list:
                     if(worker_message_list[l][0]!=curr):

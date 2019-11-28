@@ -19,7 +19,8 @@
 <script>
     var mentee_tasks_div="";
     workers_messages_dict_all = {}
-    function truncate_messages(workers_messages_dict,truncate){  
+    function truncate_messages(workers_messages_dict,truncate){ 
+        //console.log('{{ workername }}') 
         workers_messages_dict_all = {}
         for(message_thread_id in workers_messages_dict){
          workers_messages_dict_all[message_thread_id] = workers_messages_dict[message_thread_id]
@@ -48,10 +49,23 @@
          messages_list = workers_messages_dict[message_thread_id];
          
              spanElement = document.createElement('span');
-             spanElement.innerHTML = messages_list[0] + " : " + messages_list[1];
+             spanName = document.createElement('span');
+
+             spanName.innerHTML = messages_list[0];
+             if('{{ workername }}'== messages_list[0]){
+                spanName.setAttribute("style","color:blue;")
+             }
+             else{
+                spanName.setAttribute("style","color:green;")
+             }
+             //spanElement.innerHTML = messages_list[0] + " : " + messages_list[1];
+             spanMessage = document.createElement('span');
+             spanMessage.innerHTML = " : " + messages_list[1];
              brElem = document.createElement('br');
              divElem.append(brElem);
-             divElem.append(spanElement);
+             //divElem.append(spanElement);
+             divElem.append(spanName);
+             divElem.append(spanMessage);
      }
      if(truncate == true){
         anchorElem = document.createElement('a');
@@ -174,19 +188,26 @@
                         case 0:
                             // Message
                             if(participantCount==1){
-                            ok_msg = "<div class='message'>" +
-                                    "<b><span class='username'>" + data.username + ": </span></b>" +
-                                    "<span class='body'>" + data.message + "</span>" +
-                                    "</div>";
-                            }else{
-                                if('{{ curr }}'==data.username){
+                                if('{{ workername }}'==data.username){
                                     ok_msg = "<div class='message'>" +
-                                    "<b><span class='username'>" + data.username + ": </span></b>" +
+                                    "<b><span class='username' style='color:blue;'>" + data.username + ": </span></b>" +
                                     "<span class='body'>" + data.message + "</span>" +
                                     "</div>";
                                 }else{
                                     ok_msg = "<div class='message'>" +
-                                    "<b><span class='username'>Sam:</span></b>" +
+                                    "<b><span class='username' style='color:green;'>" + data.username + ": </span></b>" +
+                                    "<span class='body'>" + data.message + "</span>" +
+                                    "</div>";
+                                }
+                            }else{
+                                if('{{ curr }}'==data.username){
+                                    ok_msg = "<div class='message'>" +
+                                    "<b><span class='username' style='color:blue;'>" + data.username + ": </span></b>" +
+                                    "<span class='body'>" + data.message + "</span>" +
+                                    "</div>";
+                                }else{
+                                    ok_msg = "<div class='message'>" +
+                                    "<b><span class='username' style='color:green;'>Sam:</span></b>" +
                                     "<span class='body'>" + data.message + "</span>" +
                                     "</div>"; 
                                 }
