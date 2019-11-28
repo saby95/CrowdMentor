@@ -187,7 +187,12 @@
                     switch (data.msg_type) {
                         case 0:
                             // Message
-                            if(participantCount==1){
+                            ok_msg = "<div class='message'>" +
+                                    "<b><span class='username' style='color:blue;'>" + data.username + ": </span></b>" +
+                                    "<span class='body'>" + data.message + "</span>" +
+                                    "</div>";
+                            break;
+                            /*(if(participantCount==1){
                                 if('{{ workername }}'==data.username){
                                     ok_msg = "<div class='message'>" +
                                     "<b><span class='username' style='color:blue;'>" + data.username + ": </span></b>" +
@@ -210,10 +215,7 @@
                                     "<b><span class='username' style='color:green;'>Sam:</span></b>" +
                                     "<span class='body'>" + data.message + "</span>" +
                                     "</div>"; 
-                                }
-                               
-                            }
-                            break;
+                                }*/
                         case 1:
                             // Warning / Advice messages
                             ok_msg = "<div class='contextual-message text-warning'>" + data.message +

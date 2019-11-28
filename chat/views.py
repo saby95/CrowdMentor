@@ -107,7 +107,7 @@ def message_thread(request):
                 message_thread_id+=1;
         if(role =='worker'):
             senders=list(worker_message_list.values())
-            uniquelist=set()
+            """uniquelist=set()
             for person in senders:
                 uniquelist.add(person[0])   
             curr=str(User.objects.get(username=request.user.username))
@@ -115,7 +115,7 @@ def message_thread(request):
             if(len(uniquelist)>1):
                 for l in worker_message_list:
                     if(worker_message_list[l][0]!=curr):
-                        worker_message_list[l][0]='Sam'
+                        worker_message_list[l][0]='Sam'"""
     except:
         worker_message_list = worker_message_list
 

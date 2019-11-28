@@ -7,6 +7,9 @@ from django.http import HttpResponseRedirect
 from django.contrib import messages
 from .UserForms import ChangeRolesForm, ChangeMentorStatus, AddMentor, AssignPools
 from tasks.views import index
+from tasks.models import TaskUserJunction
+from chat.models import Room,Messages
+import datetime
 
 def userDetails(user_id):
     dict_profile = {}
@@ -74,9 +77,15 @@ def pool_status(request):
             current_mentees.append(usr.id)
             current_mentor_user.profile.set_mentees(current_mentees)
             current_mentor_user.profile.save()
-        
-        usr.profile.worker_pool = request.POST.get('radio')
-        usr.profile.save()
+
+            
+        tuj_list =TaskUserJunction.objects.filter(worker_id = usr.id)
+        for tuj in tuj_list:
+            newMessage = Messages(text="Your mentor has been changed", datetime=datetime.datetime.now(), sender_id =usr.id,room_id=tuj.id)
+            newMessage.save()
+            usr.profile.worker_pool = request.POST.get('radio')
+            usr.profile.save()
+    
 
     user_dict=dict()
     users = User.objects.all()
