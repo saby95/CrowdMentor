@@ -96,6 +96,8 @@ def message_thread(request):
     worker_message_list = {};
     message_thread_id = 1;
     role=request.session['role']
+    pool='A'
+    participants = Profile.objects.filter(user_id=request.user.profile.user_id)
     try:
         user_message_thread = Messages.objects.all();
         room_id = request.GET.get('room_id');
@@ -107,15 +109,13 @@ def message_thread(request):
                 message_thread_id+=1;
         if(role =='worker'):
             senders=list(worker_message_list.values())
-            """uniquelist=set()
-            for person in senders:
-                uniquelist.add(person[0])   
-            curr=str(User.objects.get(username=request.user.username))
-            uniquelist.remove(curr) 
-            if(len(uniquelist)>1):
-                for l in worker_message_list:
+            participants = Profile.objects.filter(user_id=request.user.profile.user_id)
+            for p in participants:
+              pool=p.worker_pool
+            if pool=='B':
+              for l in worker_message_list:
                     if(worker_message_list[l][0]!=curr):
-                        worker_message_list[l][0]='Sam'"""
+                        worker_message_list[l][0]='Sam'
     except:
         worker_message_list = worker_message_list
 
