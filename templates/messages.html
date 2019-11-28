@@ -47,7 +47,12 @@
      for(message_thread_id in workers_messages_dict){
          //workers_messages_dict_all[message_thread_id] = workers_messages_dict[message_thread_id]
          messages_list = workers_messages_dict[message_thread_id];
-         
+         if(messages_list[1].includes("Your mentor has been changed")){
+          spanElement = document.createElement('span');
+          spanElement.innerHTML = "Admin" +" : "+messages_list[1];
+          spanElement.setAttribute("style","color:red;");
+          divElem.append(spanElement);
+         }else{
              spanElement = document.createElement('span');
              spanName = document.createElement('span');
 
@@ -66,6 +71,7 @@
              //divElem.append(spanElement);
              divElem.append(spanName);
              divElem.append(spanMessage);
+           }
      }
      if(truncate == true){
         anchorElem = document.createElement('a');
