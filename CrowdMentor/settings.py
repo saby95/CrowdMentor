@@ -75,7 +75,7 @@ SECRET_KEY = '*axci9!!kyz=hn*(n^i#krk)99)2h#$9$wm)6u$6bno=1m86iq'
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
 
-ALLOWED_HOSTS = []
+ALLOWED_HOSTS = ['127.0.0.1', 'crowdmentor-v2.herokuapp.com', 'localhost']
 
 
 # Application definition
