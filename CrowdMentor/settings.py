@@ -11,9 +11,13 @@ https://docs.djangoproject.com/en/2.2/ref/settings/
 """
 
 import os
+import sys
 
 # Build paths inside the project like this: os.path.join(BASE_DIR, ...)
 BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
+sys.path.insert(0,BASE_DIR)
+os.environ['DJANGO_SETTINGS_MODULE'] = 'CrowdMentor.settings'
+os.environ.setdefault("DJANGO_SETTINGS_MODULE", "CrowdMentor.settings")
 
 
 # Quick-start development settings - unsuitable for production
@@ -99,6 +103,7 @@ MIDDLEWARE = [
     'django.contrib.auth.middleware.AuthenticationMiddleware',
     'django.contrib.messages.middleware.MessageMiddleware',
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
+    'users.active_user.ActiveUserMiddleware',
 ]
 
 ROOT_URLCONF = 'CrowdMentor.urls'
@@ -133,6 +138,18 @@ DATABASES = {
     }
 }
 
+
+#Production database. Uncomment this and comment the above to deploy to heroku
+# DATABASES = {
+#     'default': {
+#         'ENGINE': 'django.db.backends.postgresql_psycopg2',
+#         'NAME': 'crowdmentor',
+#         'USER': 'diptanilcm',
+#          'PASSWORD': 'qaws1234',
+#          'HOST': 'localhost',
+#          'PORT': '',
+#      }
+#  }
 
 # Password validation
 # https://docs.djangoproject.com/en/2.2/ref/settings/#auth-password-validators
