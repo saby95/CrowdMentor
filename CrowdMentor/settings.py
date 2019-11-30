@@ -103,7 +103,7 @@ MIDDLEWARE = [
     'django.contrib.auth.middleware.AuthenticationMiddleware',
     'django.contrib.messages.middleware.MessageMiddleware',
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
-    'users.active_user.ActiveUserMiddleware',
+    #'users.active_user.ActiveUserMiddleware',
 ]
 
 ROOT_URLCONF = 'CrowdMentor.urls'
