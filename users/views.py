@@ -10,6 +10,65 @@ from tasks.views import index
 from tasks.models import TaskUserJunction
 from chat.models import Room,Messages
 import datetime
+import numpy as np
+import plotly.express as px
+from plotly.offline import plot
+import plotly.graph_objs as go
+
+def chart(role, user):
+    if role == 'admin':
+        labels = ['Workers','Mentors','Auditors','Task Updaters']
+        users = User.objects.all()
+        worker_count = 0
+        mentor_count = 0
+        auditor_count = 0
+        task_updater_count = 0
+        for user in users:
+            roles = user.profile.get_roles()
+            if('mentor' in roles):
+                worker_count+=1
+            elif('worker' in roles):
+                mentor_count+=1
+
+            if('auditor' in roles):
+                auditor_count+=1
+            if('task_updater' in roles):
+                task_updater_count+=1    
+    
+        values = [worker_count, mentor_count, auditor_count, task_updater_count]
+
+        
+    elif role == 'worker':
+        labels = ['Completed Tasks', 'Open Tasks']
+        print('COMPLETED', user.profile.completed_tasks)
+        values = [user.profile.completed_tasks, user.profile.claimed_tasks-user.profile.completed_tasks]
+
+    elif role == 'mentor':
+        labels = ['Number of mentee having open tasks', 'Number of mentee having completed tasks']
+        mentees = user.profile.get_mentees()
+        men_open = 0
+        men_comp = 0
+        men_claim = 0
+
+        for mentee in mentees:
+            user = User.objects.get(id=mentee)
+            if user.profile.claimed_tasks > 0:
+                men_open += 1 
+            if user.profile.completed_tasks > 0:
+                men_comp +=1 
+   
+        values = [men_open, men_comp]
+
+    # elif role == 'auditor':
+    else:
+        labels = ['Number of open audits', 'Number of completed audits']   
+        values = [user.profile.open_audits, user.profile.completed_audits] 
+    # else:
+    #     labels = ['Number of open audits', 'Number of completed audits']   
+    #     values = [1, 2]   
+    fig = go.Figure(data=[go.Pie(labels=labels, values=values)])
+    return plot(fig, output_type='div', include_plotlyjs=False)
+
 
 def userDetails(user_id):
     dict_profile = {}
@@ -141,17 +200,17 @@ def profileview(request):
             elif UserRoles.ADMIN.value not in worker_roles:
                 work_val = userDetails(worker.user_id)
                 emp_profile[work_val['username']] = work_val
-        return render(request, 'admin_view.html', {'dict_profile': dict_profile, 'emp_profile': emp_profile})
+        return render(request, 'admin_view.html', {'dict_profile': dict_profile, 'emp_profile': emp_profile, 'plot_div': chart(request.session['role'],user)})
 
     elif 'role' in request.session and request.session['role'] == 'mentor':
         mentor_mentees = user.profile.get_mentees()
         for mentee in mentor_mentees:
             mentee_details = User.objects.get(id=mentee)
             dict_profile[mentee_details.username] = userDetails(mentee)
-        return render(request, 'home.html', {'dict_profile':dict_profile})    
+        return render(request, 'home.html', {'dict_profile':dict_profile, 'plot_div': chart(request.session['role'],user)})    
     else:
         dict_profile[user.username] = userDetails(user_id)
-        return render(request, 'home.html', {'dict_profile': dict_profile})
+        return render(request, 'home.html', {'dict_profile': dict_profile, 'plot_div': chart(request.session['role'],user)})
 
 @login_required
 def change_roles(request):

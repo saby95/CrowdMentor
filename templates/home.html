@@ -8,7 +8,8 @@
   <!--<h2>Welcome {{ user.get_full_name }}! <br> <small>Role: {{ profile }}</small></h2>-->
     <!--<h3>Total Salary: ${{user.profile.total_salary}}</h3><br>-->
 <!--</div>-->
-
+<div class="row">
+  <div class="column">
 {% if request.session.role == 'admin'%}
 <h5>List of all workers : </h5>
 {% endif %}
@@ -27,7 +28,11 @@
             </button>
           </h5>
         </div>
+        {% if request.session.role == 'mentor' or request.session.role == 'admin'%}
         <div id="collapse{{forloop.counter}}" class="collapse" aria-labelledby="heading{{forloop.counter}}" data-parent="#accordionExample">
+        {% else %}
+        <div id="collapse{{forloop.counter}}" class="collapse show" aria-labelledby="heading{{forloop.counter}}" data-parent="#accordionExample">
+        {% endif %} 
           <div class="card-body">
             <h5>Profile</h5>
             Username: {{ value.username }}<br>
@@ -58,6 +63,13 @@
       </div>
     {% endfor %}
 </div>
+</div>
 
+<div class="column">
+    {% autoescape off %}
+    {{ plot_div }}
+    {% endautoescape %}
+</div> 
+</div>
 
 {% endblock %}

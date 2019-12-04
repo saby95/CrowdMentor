@@ -77,6 +77,9 @@ def claim(request, task_id):
     tuj.room_id = room.id
     tuj.save()
     task.save()
+    user.profile.claimed_tasks += 1
+    user.profile.save()
+    # print(user.profile.completed_tasks)
     messages.info(request, 'New Task Claimed')
     return HttpResponseRedirect('/tasks/')
 
@@ -122,6 +125,7 @@ def answer(request, task_id):
             else:
                 salary = temp_tuj.worker_id.profile.salary
             user.profile.total_salary += salary
+            user.profile.completed_tasks += 1
             user.profile.save()
             messages.info(request, 'Answer Added')
             return HttpResponseRedirect('/tasks/claimed/')
@@ -180,6 +184,8 @@ def claim_audit(request, task_id):
     audit_tasks.auditor_id = user
     audit_tasks.start_time = datetime.now()
     audit_tasks.save()
+    user.profile.open_audits += 1
+    user.profile.save()
     messages.info(request, 'Task Claimed for Review')
     return HttpResponseRedirect('/tasks/audits/')
 
@@ -232,6 +238,8 @@ def submit_audit(request, task_id):
                     fine = worker.profile.fine
                 worker.profile.total_salary -= fine
                 worker.profile.save()
+            user.profile.completed_audits += 1
+            user.profile.save()
             messages.info(request, 'Review Submitted')
             return HttpResponseRedirect('/tasks/audits/')
     else:

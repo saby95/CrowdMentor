@@ -16,3 +16,24 @@
         display: inline-block;
         margin-right: 10%;
     }
+
+    .column {
+        float: left;
+        width: 40%;
+      }
+      
+      /* Clear floats after the columns */
+      .row:after {
+        content: "";
+        display: table;
+        clear: both;
+      }
+
+      .modebar{
+        display: none !important;
+  }
+
+  .row{
+      margin-left:0px;
+      margin-right: 0px;
+  }

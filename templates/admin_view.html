@@ -8,7 +8,8 @@
   <!--<h2>Welcome {{ user.get_full_name }}! <br> <small>Role: {{ profile }}</small></h2>-->
     <!--<h3>Total Salary: ${{user.profile.total_salary}}</h3><br>-->
 <!--</div>-->
-
+<div class="row">
+  <div class="column">
 {% if dict_profile.items %}
 <h5>List of all workers : </h5>
 {% endif %}
@@ -85,7 +86,15 @@
           </div>
         </div>
       </div>
+      
     {% endfor %}
+</div>
+</div>
+<div class="column">
+    {% autoescape off %}
+    {{ plot_div }}
+    {% endautoescape %}
+</div> 
 </div>
 
 
