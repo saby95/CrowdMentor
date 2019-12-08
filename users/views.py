@@ -142,8 +142,8 @@ def pool_status(request):
         for tuj in tuj_list:
             newMessage = Messages(text="Your mentor has been changed", datetime=datetime.datetime.now(), sender_id =usr.id,room_id=tuj.id)
             newMessage.save()
-            usr.profile.worker_pool = request.POST.get('radio')
-            usr.profile.save()
+        usr.profile.worker_pool = request.POST.get('radio')
+        usr.profile.save()
     
 
     user_dict=dict()

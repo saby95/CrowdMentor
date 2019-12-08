@@ -92,7 +92,8 @@ INSTALLED_APPS = [
     'tasks',
     'channels',
     'chat',
-    'peerhelp'
+    'peerhelp',
+    'behave_django'
 ]
 
 MIDDLEWARE = [
