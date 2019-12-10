@@ -15,7 +15,7 @@ def step_impl(context):
 def step_impl(context):
     br = context.browser
 
-    br.visit(context.base_url + '/login/')
+    br.visit(context.base_url)
 
     # Fill login form and submit it (invalid version)
     br.fill('username', 'foo')
@@ -28,5 +28,11 @@ def step_impl(context):
     br = context.browser
 
     # Checks redirection URL
-    assert br.url.endswith('/login/')
+    assert br.url.endswith('/accounts/login/?next=/')
     assert br.find_by_id('error').text == "Your username and password didn't match. Please try again."
+
+
+@then('I logout')
+def step_impl(context):
+    br = context.browser
+    br.visit(context.base_url + '/logout/')

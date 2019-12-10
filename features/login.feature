@@ -4,6 +4,7 @@ Feature: Login form
     Given I am an existing user who tries to access the site
     When I submit a valid login page
     Then I am redirected to the home page
+    And I logout
 
   Scenario: Existing user accesses the login form with the incorrect credentials
     Given I am an existing user who tries to access the site
