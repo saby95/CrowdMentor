@@ -1,7 +1,8 @@
 from tasks.models import ResearchTasks, Audit, TaskUserJunction
 from django.contrib.auth.models import User
 from test.factories.user import UserFactory
-from users.profile import Profile
+from users.models import Profile
+import time
 
 @given('A task has been submitted')
 def step_impl(context):
@@ -11,6 +12,7 @@ def step_impl(context):
 
 @given('there is a task to be audited')
 def step_impl(context):
+    time.sleep(1)
     context.execute_steps(
         u'''given A task has been submitted
         given I am an existing user with worker access
@@ -30,7 +32,7 @@ def step_impl(context):
 @then('I can claim the task for audit')
 def step_impl(context):
     br = context.browser
-    br.visit(context.base_url + '/tasks/audits/' + str(context.task.id) + '/claim_audit/')
+    br.visit(context.base_url + '/tasks/audits/' + str(context.task.id) + '/claim_audit')
     assert br.url.endswith('/tasks/audits/')
     assert br.is_text_present('Task Claimed for Review')
 
