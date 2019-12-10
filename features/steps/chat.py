@@ -1,7 +1,7 @@
 from behave import given, when, then
 from django.contrib.auth.models import User
-from .users.profile import Profile
-from .privatemessages.models import Thread
+from users.models import Profile
+from chat.models import Messages
 
 @when('I send a message to worker')
 def step_impl(context):
@@ -49,7 +49,7 @@ def step_impl(context):
         u'given I am logged in as the user with worker access')
     br = context.browser
     u = User.objects.get(username='worker')
-    t = Thread.objects.get(participants=u)
+    t = Messages.objects.get(participants=u)
     br.visit(context.base_url + '/messages/chat/' + str(t.id))
     assert br.is_text_present('Hello Worker')
 
@@ -59,7 +59,7 @@ def step_impl(context):
         u'given I am logged in as the user with mentor access')
     br = context.browser
     u = User.objects.get(username='mentor')
-    t = Thread.objects.get(participants=u)
+    t = Messages.objects.get(participants=u)
     br.visit(context.base_url + '/messages/chat/' + str(t.id))
     assert br.is_text_present('Hello Mentor')
 

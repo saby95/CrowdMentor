@@ -1,7 +1,7 @@
 from behave import given, then, when
 from django.contrib.auth.models import User
-from .users.profile import Profile
-from .tasks.models import ResearchTasks, TaskUserJunction
+from users.models import Profile
+from tasks.models import ResearchTasks, TaskUserJunction
 
 @given('there is a worker')
 def step_impl(context):

@@ -1,8 +1,8 @@
 from behave import given, when, then
 from test.factories.user import UserFactory
 from django.contrib.auth.models import User
-from .users.profile import Profile
-from .users.UserRoles import UserRoles
+from users.models import Profile, UserRoles
+import json
 
 @then('I am redirected to the {webpage} page')
 def step_impl(context, webpage):
@@ -46,7 +46,12 @@ def step_impl(context, role):
     u.set_password('bar')
     u.save()
     p = Profile.objects.get(user_id=u.id)
-    p.role = role
+    if role == 'mentor':
+        p.role = json.dumps(['worker','mentor'])
+    elif role == 'task_updater/auditor':
+        p.role = json.dumps((['task_updater','auditor']))
+    else:
+        p.role = json.dumps([role])
     p.save()
 
 @given('I logout')

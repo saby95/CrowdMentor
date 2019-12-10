@@ -1,6 +1,7 @@
 from behave import given, when, then
 from django.contrib.auth.models import User
 from tasks.models import TaskUserJunction
+import time
 
 @when('I give valid task')
 def step_impl(context):
@@ -8,6 +9,8 @@ def step_impl(context):
     br.visit(context.base_url + '/tasks/add_tasks/')
 
     # Fill login form and submit it (valid version)
+    time.sleep(1)
+    #br.find_by_id('id_task_desc').first.fill('Task 1')
     br.fill('task_desc', 'Task 1')
     print('give valid task: ', br.url)
     br.find_by_id('id_add_task').first.click()

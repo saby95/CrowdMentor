@@ -5,7 +5,7 @@ from django.core import management
 def before_all(context):
     # PhantomJS is used there (headless browser - meaning we can execute tests in a command-line environment
 
-    context.browser = Browser('firefox', headless=True)
+    context.browser = Browser('chrome', headless=False)
 
 def before_scenario(context, scenario):
     # Reset the database before each scenario

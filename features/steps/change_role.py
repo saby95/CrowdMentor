@@ -9,6 +9,5 @@ def step_impl(context):
     br = context.browser
     br.visit(context.base_url + '/change_roles/')
     u = User.objects.get(username='worker')
-    id = u.id
-    br.find_by_id('id_role_'+str(id)).first.select('mentor')
+    br.find_by_id('id_role').first.select('mentor')
     br.find_by_id('id_change_role').first.click()

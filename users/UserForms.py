@@ -41,7 +41,7 @@ class ChangeRolesForm(forms.Form):
 
         choices.insert(0,('Select','Select'))
 
-        self.fields['role'] = forms.ChoiceField(choices=choices, required=False)      
+        self.fields['role'] = forms.ChoiceField(choices=choices, required=False)
         self.fields['salary'] = forms.FloatField(label='Salary', initial=usr.profile.salary, required=True, widget=forms.TextInput(attrs={'class':'input'}))
         self.fields['bonus'] = forms.FloatField(label='Bonus', initial=usr.profile.bonus, required=False, widget=forms.TextInput(attrs={'class':'input'}))
         self.fields['fine'] = forms.FloatField(label='Fine', initial=usr.profile.fine, required=False, widget=forms.TextInput(attrs={'class':'input'}))

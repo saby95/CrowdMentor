@@ -1,6 +1,6 @@
 from behave import given, when, then
 from django.contrib.auth.models import User
-from .tasks.models import ResearchTasks, TaskUserJunction
+from tasks.models import ResearchTasks, TaskUserJunction
 
 @given('there is an open task')
 def step_impl(context):
