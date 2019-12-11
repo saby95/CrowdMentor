@@ -18,10 +18,12 @@
   {% block extra_head %} {% endblock %}
 <script>
     var mentee_tasks_div="";
+    star=0;
+    stardict={};
+    toggledict={};
+    toggle=0; 
     workers_messages_dict_all = {}
-    stardict={}
     function truncate_messages(workers_messages_dict,truncate){ 
-        //console.log('{{ workername }}') 
         workers_messages_dict_all = {}
         for(message_thread_id in workers_messages_dict){
          workers_messages_dict_all[message_thread_id] = workers_messages_dict[message_thread_id]
@@ -30,15 +32,103 @@
         messages_length = Object.keys(workers_messages_dict).length;
         truncate_length = messages_length-5; 
         h3Element.innerHTML = 'Chat Threads ('+Object.keys(workers_messages_dict).length+')';
+        if("{{role}}"=="mentor"){
+        filterElem=document.createElement('button');
+        filterid=document.getElementById('mentee_task_div').childNodes[1].childNodes;
+        roomId=0;
+        for(i =0;i<filterid.length;i++){
+          if(filterid[i].className=='room-link joined active'){
+            toggledict={};
+            roomId=filterid[i].id;
+          }
+        }
+        filterElem.setAttribute('id',roomId);
+      }
         divElem = document.getElementById('workers_message_threads');
+
         $("#workers_message_threads").empty();
         divElem.append(h3Element);
+         if("{{role}}" == "mentor"){
+          if(toggledict[roomId]==1)
+        filterElem.innerHTML="Hide Starred Messages";
+      else
+        filterElem.innerHTML="Show Starred Messages";
+        brElem=document.createElement('br');
+        //document.getElementById('starmessagediv2').append(brElem);
+        divElem.append(filterElem);
+        divElem3=document.createElement('div');
+        divElem3.setAttribute('id','star'+roomId);
+        divElem3.setAttribute('style','display:none');
+        divElem.append(divElem3);
+        filterElem.addEventListener('click',function(){
+          star="";
+          if(toggle==0)
+            star="star";
+          else
+            star="unstar";
+          document.getElementById(event.srcElement.id).disabled=true
+          bool=event.srcElement.id in toggledict;
+          if(!bool){
+            toggledict[event.srcElement.id]=0;
+          }
+          if(toggledict[event.srcElement.id]==0){
+          $.ajax(
+              {
+                  type:"GET",
+                  url: "/messages/fetch_message",
+                  data:{
+                           star:star,
+                           room_id:event.srcElement.id
+
+                  },
+                  success: function( data ) 
+                  {
+                     starmessagesdict=data;
+                    divElem2=document.createElement('div');
+
+                    roomId=0;
+                    for(i=0;i<starmessagesdict.length;i++){
+                      roomId=starmessagesdict[i][2];
+                      spanElement=document.createElement('span');
+                      spanElement.innerHTML=starmessagesdict[i][0]+" : "+starmessagesdict[i][1];
+                      brElem=document.createElement('br');
+                      divElem2.append(spanElement);
+                      divElem2.append(brElem);
+                    }
+                    divElem2.setAttribute('id','div'+roomId);
+                    document.getElementById('star'+roomId).append(divElem2);
+                    document.getElementById('star'+roomId).setAttribute('style','display:block');
+
+                  }
+               })
+           toggledict[event.srcElement.id]=1;
+               if(toggledict[roomId]==1)
+             filterElem.innerHTML="Hide Starred Messages";
+           else
+             filterElem.innerHTML="Show Starred Messages";
+        }
+          else{
+            var element = document.getElementById("div"+event.srcElement.id);
+            element.parentNode.removeChild(element);
+            //parent='#star'+event.srcElement.id;
+            //$(parent).remove('#div'+event.srcElement.id);
+             document.getElementById('star'+event.srcElement.id).setAttribute('style','display:none');
+            toggledict[event.srcElement.id]=0;
+                if(toggledict[event.srcElement.id]==1){
+                  alert("j")
+              filterElem.innerHTML="Hide Starred Messages";
+            }
+            else
+              filterElem.innerHTML="Show Starred Messages";
+          }
+        
+        })
+      }
 
         if(truncate==true){
         keys = Object.keys(workers_messages_dict,truncate);
         truncated_keys = [];
         for(var i=0;i<truncate_length;i++){
-            //workers_messages_dict_all[keys[i]] = workers_messages_dict[keys[i]];
          truncated_keys.push(keys.shift());
          }
           for(i=0;i<truncated_keys.length;i++){
@@ -46,7 +136,6 @@
          }
         }
      for(message_thread_id in workers_messages_dict){
-         //workers_messages_dict_all[message_thread_id] = workers_messages_dict[message_thread_id]
          messages_list = workers_messages_dict[message_thread_id];
          key="starmessage"+message_thread_id;
          stardict[key]='star';
@@ -66,7 +155,6 @@
              else{
                 spanName.setAttribute("style","color:green;")
              }
-             //spanElement.innerHTML = messages_list[0] + " : " + messages_list[1];
              spanMessage = document.createElement('span');
              spanMessage.innerHTML = " : " + messages_list[1];
              starElem=document.createElement('span');
@@ -76,24 +164,26 @@
             starElem.innerHTML='&#9733'+"  ";
              starid='starmessage'+message_thread_id;
              starElem.setAttribute('id',starid);
+
+
              brElem = document.createElement('br');
              divElem.append(brElem);
-             //divElem.append(spanElement);
-             if("{{ role }}"=="mentor")
-              divElem.append(starElem);
+             if("{{role}}"=="mentor")
+             	divElem.append(starElem);
              divElem.append(spanName);
              divElem.append(spanMessage);
+             
            }
-            try{
-          starElem.addEventListener('click',function(){
-            toggleStar();
-      });
+           try{
+	        starElem.addEventListener('click',function(){
+	        	toggleStar();
+			});
         }
         catch(err){
           //do nothing
         }
-        function toggleStar(){
-              key=event.srcElement.id;
+             function toggleStar(){
+             	key=event.srcElement.id;
               star="";
               if(stardict[key]=="star")
                 star="star";
@@ -113,15 +203,15 @@
                       console.log("message sent to view");
                   }
                })
-              if(stardict[key]=='star'){
-                document.getElementById(key).innerHTML='&#9733';
-                stardict[key]='unstar';
-              }
-              else{
-                document.getElementById(key).innerHTML='&#9734';
-                stardict[key]='star';
-              }
-              
+             	if(stardict[key]=='star'){
+             		document.getElementById(key).innerHTML='&#9733';
+             		stardict[key]='unstar';
+             	}
+             	else{
+             		document.getElementById(key).innerHTML='&#9734';
+             		stardict[key]='star';
+             	}
+             	
              }
      }
      if(truncate == true){
@@ -243,37 +333,32 @@
                     // Only for demo purposes is hardcoded, in production scenarios, consider call a service.
                     switch (data.msg_type) {
                         case 0:
-                            // Message
-                            /*ok_msg = "<div class='message'>" +
-                                    "<b><span class='username' style='color:blue;'>" + data.username + ": </span></b>" +
-                                    "<span class='body'>" + data.message + "</span>" +
-                                    "</div>";
-                            break;*/
                             if(participantCount==1){
                                 if('{{ workername }}'==data.username){
-                                    ok_msg = "<div class='message'>" +
+                                    ok_msg = ok_msg+"<div class='message' style='float:left'>" +
                                     "<b><span class='username' style='color:blue;'>" + data.username + ": </span></b>" +
                                     "<span class='body'>" + data.message + "</span>" +
                                     "</div>";
                                 }else{
-                                    ok_msg = "<div class='message'>" +
+                                    ok_msg =ok_msg +"<div class='message'>" +
                                     "<b><span class='username' style='color:green;'>" + data.username + ": </span></b>" +
                                     "<span class='body'>" + data.message + "</span>" +
                                     "</div>";
                                 }
                             }else{
                                 if('{{ curr }}'==data.username){
-                                    ok_msg = "<div class='message'>" +
+                                    ok_msg = ok_msg+"<div class='message'>" +
                                     "<b><span class='username' style='color:blue;'>" + data.username + ": </span></b>" +
                                     "<span class='body'>" + data.message + "</span>" +
                                     "</div>";
                                 }else{
-                                    ok_msg = "<div class='message'>" +
+                                    ok_msg = ok_msg+"<div class='message'>" +
                                     "<b><span class='username' style='color:green;'>Sam:</span></b>" +
                                     "<span class='body'>" + data.message + "</span>" +
                                     "</div>"; 
                                 }
                               }
+                              ok_msg=ok_msg+"<br/>";
                             break;
 
                         case 1:
@@ -351,7 +436,7 @@
     <span><b></b></span>
 </div>
 <br/>
-    <div style="float:left;clear:left;">
+    <div style="float:left;clear:left;" id="mentee_task_div">
     <ul class="nav nav-pills">
          {% for task in tasklist%} 
          <li class="room-link" id="{{ task.1}}" data-room-id="{{ task.1}}"><a>{{ task.0 }}</a></li>
