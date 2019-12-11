@@ -25,3 +25,4 @@ class Messages(models.Model):
    datetime = models.DateTimeField(auto_now_add=True)
    sender_id = models.IntegerField(default=0)
    room = models.ForeignKey(Room,on_delete=models.CASCADE)
+   star = models.CharField(max_length=255,default="unstar")
