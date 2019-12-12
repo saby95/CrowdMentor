@@ -39,6 +39,7 @@ def index(request):
                mentee_id = p.get_mentees();
                for m in mentee_id:
                    user = User.objects.get(id=m);
+                   participant_count=1
                    workername=user.username
                    tuj_list = TaskUserJunction.objects.filter(worker_id = user)
                    chat_participants.append(user.username);
@@ -108,6 +109,8 @@ def message_thread(request):
                 worker_message_list[thread.id] = [str(username),thread.text,thread.star];
                 #message_thread_id+=1;
         if(role =='worker'):
+            curr=User.objects.get(username=request.user.username)
+            curr=str(curr)
             senders=list(worker_message_list.values())
             participants = Profile.objects.filter(user_id=request.user.profile.user_id)
             for p in participants:
